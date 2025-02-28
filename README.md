@@ -1,10 +1,10 @@
 # NutriGuard: Early Malnutrition Detection in Children Under 5
 
 ## Description
-NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report, the system analyzes key health indicators to provide an early warning system for malnutrition. The solution is built for healthcare professionals, NGOs, and government agencies to improve child health outcomes.
+NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in Western Province of Rwanda. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report, the system analyzes key health indicators to provide an early warning system for malnutrition. The solution is built for healthcare professionals, NGOs, and government agencies to improve child health outcomes.
 
 ## GitHub Repository
-[Project Repository](INSERT_GITHUB_REPO_LINK_HERE)
+[Project Repository](https://github.com/DavidkingMazimpaka/NutriGuard_Mission_Capstone)
 
 ## Setup Instructions
 ### Prerequisites
@@ -62,6 +62,6 @@ The project will be deployed in multiple phases:
 ---
 For more details, check the documentation in the repository. Feel free to contribute or report issues!
 
-**Maintainer:** [Your Name]  
+**Maintainer:** [KingDavid Mazimpaka]  
 **Contact:** [mazimpakadavid607@gmail.com] 
 
