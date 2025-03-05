@@ -26,7 +26,7 @@ NutriGuard/
 ```
 
 ## Description
-NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in Western Province of Rwanda. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report, the system analyzes key health indicators to provide an early warning system for malnutrition.
+NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in the Western Province of Rwanda. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report and Ntarangwa HealthCare Data, the system analyzes key health indicators to provide an early warning system for malnutrition.
 
 ## Prerequisites
 - Python 3.8 or higher
