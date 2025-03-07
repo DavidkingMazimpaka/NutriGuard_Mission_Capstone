@@ -111,6 +111,10 @@ MODEL_PATH=model_files/malnutrition_model.h5
 SCALER_PATH=model_files/scaler.joblib
 LOG_LEVEL=INFO
 ```
+## Designs
+The project includes the following design components:
+- Figma Mockups: UI/UX designs for the mobile and web interfaces. [View Mockups](https://www.figma.com/proto/jgtbH2Xs0YMXiesIClfGWi/NutriGuard?node-id=0-1&t=9lzvu1IxIhSQkn9T-1)
+
 
 ## Deployment Considerations
 - Use Gunicorn for production deployment
