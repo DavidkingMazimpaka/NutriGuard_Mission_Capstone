@@ -1,1 +1,6 @@
 venv/
+
+# Logs
+package.json
+package-lock.json
+tailwind.config.ts
