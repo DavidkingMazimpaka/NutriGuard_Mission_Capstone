@@ -49,7 +49,7 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/c7abfdfc-b938-46bc-b5b3-e337c9c66889) and click on Share -> Publish.
+Simply open [Nutri-Guard-Ai](https://nutri-guard-ai.vercel.app/) and click on Share -> Publish.
 
 ## I want to use a custom domain - is that possible?
 
