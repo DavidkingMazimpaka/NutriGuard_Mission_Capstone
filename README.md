@@ -133,7 +133,7 @@ The project includes the following design components:
    - Prediction routes: `backend/app/routes/prediction.py`
 
 3. **Frontend**
-   - Web: React,typescript
+   - Web: React,Typescript
    - Mobile: Flutter (future Implementation)
 
 ## Troubleshooting
