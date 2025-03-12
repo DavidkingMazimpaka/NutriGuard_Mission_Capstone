@@ -1,6 +1,13 @@
+import sys
+import os
+from pathlib import Path
 import pytest
-from app.models.prediction_model import PredictionInput, PredictionOutput, IncomeLevel, Sex
 
+# Find the project root directory
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from app.models.prediction_model import PredictionInput, PredictionOutput, IncomeLevel, Sex
 def test_prediction_input_model():
     # Test valid input
     valid_input = {
