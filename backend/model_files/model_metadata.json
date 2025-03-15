@@ -1,0 +1,1 @@
+{"model_type": "RandomForest", "creation_date": "2025-03-15", "accuracy": 0.9702380952380952, "macro_f1": 0.9124392130857649, "weighted_f1": 0.9697714043619218, "class_mapping": {"0": "Critical", "1": "High", "2": "Moderate", "3": "Low"}, "feature_count": 10, "malnutrition_classes": 4}
