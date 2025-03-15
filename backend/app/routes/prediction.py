@@ -1,33 +1,35 @@
-from fastapi import APIRouter, HTTPException
-from app.models.prediction_model import PredictionInput, PredictionOutput
-from app.models.ml_model import get_model_instance
+# app/routes/prediction.py
+from fastapi import APIRouter, HTTPException, Depends
+from app.models.prediction_model import MalnutritionInput, MalnutritionOutput
+from app.models.ml_model import get_model
 
-router = APIRouter(
-    prefix="/predict",
-    tags=["prediction"],
-    responses={404: {"description": "Not found"}},
-)
+router = APIRouter()
 
-@router.post("/", response_model=PredictionOutput)
-async def predict(input_data: PredictionInput):
+@router.post("/predict", response_model=MalnutritionOutput)
+async def predict_malnutrition(input_data: MalnutritionInput):
+    """
+    Predicts malnutrition status based on input measurements
+    
+    Returns malnutrition classification as Critical, High, Moderate, or Low
+    """
     try:
         # Get model instance
-        model = get_model_instance()
+        model = get_model()
         
         # Convert Pydantic model to dict
-        input_dict = input_data.dict()
+        features = input_data.dict()
         
-        # Make prediction
-        prediction, probability, features = model.predict(input_dict)
+        # Get prediction
+        result = model.predict(features)
         
-        # Create response
-        response = PredictionOutput(
-            prediction=prediction,
-            probability=probability,
-            input_data=input_data,
-            features=features
-        )
-        
-        return response
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
+
+@router.get("/model-info")
+async def get_model_info():
+    """Returns information about the malnutrition prediction model"""
+    model = get_model()
+    return model.get_model_info()
