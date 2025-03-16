@@ -5,6 +5,7 @@ import pandas as pd
 import os
 import numpy as np
 from typing import Dict, List, Union, Any
+from app.config import MODEL_FILES_DIR
 
 class MalnutritionModel:
     def __init__(self):
@@ -16,7 +17,7 @@ class MalnutritionModel:
         
     def _load_model(self):
         """Load the saved model and associated artifacts"""
-        base_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "model_files")
+        base_path = MODEL_FILES_DIR
         
         # Load the model
         model_path = os.path.join(base_path, "malnutrition_rf_model.joblib")
@@ -36,19 +37,36 @@ class MalnutritionModel:
             import json
             with open(metadata_path, "r") as f:
                 self.metadata = json.load(f)
-    
+                
+                
     def predict(self, features: Dict[str, Any]) -> Dict[str, Any]:
+        
         """
         Make a prediction using the loaded model
-        
+    
         Args:
-            features: Dictionary containing feature values
+        features: Dictionary containing feature values
             
         Returns:
             Dictionary with prediction results
         """
+        # Create a copy of the input features
+        processed_features = features.copy()
+    
+        # Map the simplified field names back to what the model expects
+        field_mapping = {
+            'height_for_age_z': 'Height-for-age (Mean Z-score)',
+            'weight_for_height_z': 'Weight-for-height (Mean Z-score)',
+            'weight_for_age_z': 'Weight-for-age (Mean Z-score)'
+        }
+        
+        # Replace keys in the dictionary
+        for new_key, old_key in field_mapping.items():
+            if new_key in processed_features:
+                processed_features[old_key] = processed_features.pop(new_key)
+        
         # Convert input to DataFrame with correct feature order
-        input_df = pd.DataFrame([features])
+        input_df = pd.DataFrame([processed_features])
         
         # Ensure all required features are present
         missing_features = [f for f in self.feature_names if f not in input_df.columns]
@@ -78,7 +96,6 @@ class MalnutritionModel:
             "class_probabilities": class_probabilities,
             "timestamp": pd.Timestamp.now().isoformat()
         }
-    
     def get_model_info(self) -> Dict[str, Any]:
         """Return information about the model"""
         return {
