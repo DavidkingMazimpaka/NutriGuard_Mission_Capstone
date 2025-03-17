@@ -1,10 +1,9 @@
-# app/models/ml_model.py
 import joblib
 import pickle
 import pandas as pd
 import os
 import numpy as np
-from typing import Dict, List, Union, Any
+from typing import Dict, List, Tuple, Union, Any
 from app.config import MODEL_FILES_DIR
 
 class MalnutritionModel:
@@ -96,6 +95,7 @@ class MalnutritionModel:
             "class_probabilities": class_probabilities,
             "timestamp": pd.Timestamp.now().isoformat()
         }
+        
     def get_model_info(self) -> Dict[str, Any]:
         """Return information about the model"""
         return {
@@ -114,3 +114,46 @@ def get_model():
     if model_instance is None:
         model_instance = MalnutritionModel()
     return model_instance
+
+def predict_malnutrition(features: List) -> Tuple[str, float, Dict[str, float]]:
+    """
+    Predict malnutrition class based on input features list
+    
+    Args:
+        features: List of features [Sex, Age, Height, Weight, height_for_age_z, 
+                 weight_for_height_z, weight_for_age_z, Height_m, BMI, WHR]
+    
+    Returns:
+        Tuple containing:
+        - predicted class (str): Malnutrition classification
+        - confidence (float): Confidence score of prediction
+        - class_probabilities (Dict): Probabilities for each class
+    """
+    try:
+        # Get model instance
+        model = get_model()
+        
+        # Convert features list to dictionary using expected feature names
+        feature_names = [
+            "Sex", "Age", "Height", "Weight", "height_for_age_z", "weight_for_height_z",
+            "weight_for_age_z", "Height_m", "BMI", "WHR"
+        ]
+        
+        # Create dictionary from feature list
+        feature_dict = {name: value for name, value in zip(feature_names, features)}
+        
+        # Make prediction using the model
+        result = model.predict(feature_dict)
+        
+        # Extract results in expected format for the API
+        predicted_class = result["predicted_class"]
+        confidence = result["confidence"]
+        class_probabilities = result["class_probabilities"]
+        
+        return predicted_class, confidence, class_probabilities
+        
+    except Exception as e:
+        # Log the error
+        import logging
+        logging.error(f"Prediction error: {str(e)}")
+        raise RuntimeError(f"Malnutrition prediction failed: {str(e)}")

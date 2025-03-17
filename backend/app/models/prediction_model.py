@@ -1,9 +1,5 @@
 # app/models/prediction_model.py
 from pydantic import BaseModel, Field
-from typing import Dict, List, Optional, Union, Any
-
-# app/models/prediction_model.py
-from pydantic import BaseModel, Field
 from typing import Dict, Optional
 
 class MalnutritionInput(BaseModel):
@@ -11,15 +7,14 @@ class MalnutritionInput(BaseModel):
     Age: float = Field(..., description="Age in months")
     Height: float = Field(..., description="Height in cm")
     Weight: float = Field(..., description="Weight in kg")
-    height_for_age_z: float = Field(..., alias="Height-for-age (Mean Z-score)", description="Height-for-age Z-score")
-    weight_for_height_z: float = Field(..., alias="Weight-for-height (Mean Z-score)", description="Weight-for-height Z-score")
-    weight_for_age_z: float = Field(..., alias="Weight-for-age (Mean Z-score)", description="Weight-for-age Z-score")
+    height_for_age_z: float = Field(..., description="Height-for-age Z-score")
+    weight_for_height_z: float = Field(..., description="Weight-for-height Z-score")
+    weight_for_age_z: float = Field(..., description="Weight-for-age Z-score")
     Height_m: float = Field(..., description="Height in meters")
     BMI: float = Field(..., description="Body Mass Index")
     WHR: float = Field(..., description="Weight-Height Ratio")
     
     class Config:
-        allow_population_by_field_name = True
         schema_extra = {
             "example": {
                 "Sex": 1,
