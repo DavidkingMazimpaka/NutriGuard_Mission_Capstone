@@ -1,11 +1,27 @@
 
 # NutriGuard
 
-An early malnutrition detection system for children under 5 years old, designed to be intuitive for healthcare workers and parents to use, even in low-resource settings like Western Province of Rwanda.
+An early malnutrition detection system for children under 5 years old, designed to be intuitive for healthcare workers and parents to use, even in low-resource settings.
 
 ## Project info
 
-**How to run this project**
+**URL**: https://lovable.dev/projects/c7abfdfc-b938-46bc-b5b3-e337c9c66889
+
+## How can I edit this code?
+
+There are several ways of editing your application.
+
+**Use Lovable**
+
+Simply visit the [Lovable Project](https://lovable.dev/projects/c7abfdfc-b938-46bc-b5b3-e337c9c66889) and start prompting.
+
+Changes made via Lovable will be committed automatically to this repo.
+
+**Use your preferred IDE**
+
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
@@ -37,7 +53,7 @@ npm run dev
 - Click on "New codespace" to launch a new Codespace environment.
 - Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this NutriGuard Frontend
+## What technologies are used for this project?
 
 This project is built with:
 
@@ -45,11 +61,11 @@ This project is built with:
 - TypeScript
 - React
 - shadcn-ui
-- Tailwind CSS.
+- Tailwind CSS
 
 ## How can I deploy this project?
 
-Simply open [Nutri-Guard-Ai](https://nutri-guard-ai.vercel.app/) and click on Share -> Publish.
+Simply open [Lovable](https://lovable.dev/projects/c7abfdfc-b938-46bc-b5b3-e337c9c66889) and click on Share -> Publish.
 
 ## I want to use a custom domain - is that possible?
 

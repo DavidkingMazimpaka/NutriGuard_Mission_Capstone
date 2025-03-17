@@ -4,22 +4,30 @@ import MeasurementForm from "@/components/MeasurementForm";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { MeasurementData } from "@/lib/api";
 
 const AddMeasurement = () => {
   const [searchParams] = useSearchParams();
   const childId = searchParams.get("childId");
   const navigate = useNavigate();
+  const { toast } = useToast();
   
-  const handleSubmit = (data: any) => {
+  const handleSubmit = (data: MeasurementData) => {
     console.log("Measurement submitted:", data);
     
-    // In a real app, we would save the data to a database
-    // and then navigate to the appropriate page
-    
+    // Navigate based on the context
     if (childId) {
+      toast({
+        title: "Measurement added",
+        description: "The measurement has been successfully added to the child's profile.",
+      });
       navigate(`/child/${childId}`);
     } else {
-      navigate("/");
+      // For new child, navigate to malnutrition results
+      navigate("/malnutrition-results", { 
+        state: { measurementData: data }
+      });
     }
   };
   

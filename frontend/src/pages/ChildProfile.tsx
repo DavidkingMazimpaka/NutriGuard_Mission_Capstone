@@ -1,15 +1,15 @@
-
 import { useParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Edit, FileText, Ruler, Weight } from "lucide-react";
+import { ArrowLeft, Calendar, Edit, Ruler, Weight } from "lucide-react";
 import { Link } from "react-router-dom";
 import GrowthChart from "@/components/GrowthChart";
 import AlertBanner from "@/components/AlertBanner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import NutritionGuidance from "@/components/NutritionGuidance";
+import ChildReport from "@/components/ChildReport";
 
-// Mock data for a specific child
 const mockChildData = {
   id: "3",
   name: "Maria Garcia",
@@ -146,12 +146,12 @@ const ChildProfile = () => {
                   Add Measurement
                 </Link>
               </Button>
-              <Button asChild className="gap-1">
-                <Link to={`/reports/${child.id}`}>
-                  <FileText className="h-4 w-4" />
-                  Generate Report
-                </Link>
-              </Button>
+              <ChildReport 
+                childId={child.id} 
+                childName={child.name} 
+                measurements={child.measurements} 
+                status={child.status as "normal" | "warning" | "danger"} 
+              />
             </div>
           </div>
           
@@ -228,6 +228,13 @@ const ChildProfile = () => {
           </div>
           
           <GrowthChart data={child.measurements} name={child.name} />
+          
+          <NutritionGuidance 
+            status={child.status as "normal" | "warning" | "danger"}
+            weightForAge={latestMeasurement.weightForAge}
+            heightForAge={latestMeasurement.heightForAge}
+            weightForHeight={latestMeasurement.weightForHeight}
+          />
         </div>
       </main>
     </div>
