@@ -10,23 +10,24 @@ NutriGuard/
 │   ├── tests/
 │   ├── scripts/
 │   ├── requirements.txt
-│   └── run.py
+│   └── main.py
 │
 ├── frontend/
-│   ├── web/
-│   └── mobile/
+│   ├── react- Typescript/
+│
 │
 ├── notebooks/
-│   └── model_training.ipynb
+│   └── NutriGuard_Capstone.ipynb
+    └── malnutrition_model_training_evaluation.ipynb
 │
-├── data/
+├── dataset/
 │   └── malnutrition_dataset.csv
-│
+│      ├──NutriGuardDataset.xlsx
 └── README.md
 ```
 
 ## Description
-NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in the Western Province of Rwanda. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report and Ntaganzwa HealthCare Data, the system analyzes key health indicators to provide an early warning system for malnutrition.
+NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in the Western Province of Rwanda. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report, WHO Child Standars growth, and Ntaganzwa HealthCare Data, the system analyzes key health indicators to provide an early warning, prediction, and recommendation system for malnutrition in children under five.
 
 ## Prerequisites
 - Python 3.8 or higher

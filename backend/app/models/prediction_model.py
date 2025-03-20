@@ -1,34 +1,36 @@
-# app/models/prediction_model.py
-from pydantic import BaseModel, Field
-from typing import Dict, Optional
+from pydantic import BaseModel, Field, validator, root_validator
+from typing import List, Dict, Optional, Union
 
 class MalnutritionInput(BaseModel):
-    Sex: int = Field(..., description="Sex (0 for female, 1 for male)")
-    Age: float = Field(..., description="Age in months")
-    Height: float = Field(..., description="Height in cm")
-    Weight: float = Field(..., description="Weight in kg")
-    height_for_age_z: float = Field(..., description="Height-for-age Z-score")
-    weight_for_height_z: float = Field(..., description="Weight-for-height Z-score")
-    weight_for_age_z: float = Field(..., description="Weight-for-age Z-score")
-    Height_m: float = Field(..., description="Height in meters")
-    BMI: float = Field(..., description="Body Mass Index")
-    WHR: float = Field(..., description="Weight-Height Ratio")
+    Sex: int = Field(..., ge=0, le=1, description="Gender (0=Female, 1=Male)")
+    Age: float = Field(..., ge=0, le=60, description="Age in months")
+    Height: float = Field(..., gt=0, description="Height in cm")
+    Weight: float = Field(..., gt=0, description="Weight in kg")
+    height_for_age_z: Optional[float] = Field(None, description="Height for age z-score")
+    weight_for_height_z: Optional[float] = Field(None, description="Weight for height z-score")
+    weight_for_age_z: Optional[float] = Field(None, description="Weight for age z-score")
+    Height_m: Optional[float] = Field(None, description="Height in meters")
+    BMI: Optional[float] = Field(None, description="Body Mass Index")
+    WHR: Optional[float] = Field(None, description="Waist-to-Hip Ratio")
+    
+    @root_validator(pre=True)
+    def calculate_derived_fields(cls, values):
+        # Only calculate if we have the necessary base measurements
+        if "Height" in values and values["Height"] and "Weight" in values and values["Weight"]:
+            # Calculate Height_m if not provided
+            if "Height_m" not in values or values["Height_m"] is None:
+                values["Height_m"] = values["Height"] / 100.0
+                
+            # Calculate BMI if not provided
+            if "BMI" not in values or values["BMI"] is None:
+                height_m = values["Height"] / 100.0
+                values["BMI"] = values["Weight"] / (height_m ** 2)
+                
+        return values
     
     class Config:
-        schema_extra = {
-            "example": {
-                "Sex": 1,
-                "Age": 24.0,
-                "Height": 80.0,
-                "Weight": 9.5,
-                "height_for_age_z": -2.1,
-                "weight_for_height_z": -1.8,
-                "weight_for_age_z": -2.3,
-                "Height_m": 0.8,
-                "BMI": 14.8,
-                "WHR": 0.12
-            }
-        }
+        validate_assignment = True
+        extra = "ignore"  # Ignore extra fields that might be sent
 
 class MalnutritionOutput(BaseModel):
     predicted_class: str

@@ -43,17 +43,7 @@ const WelcomePage = () => {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">or continue with demo</span>
-              </div>
             </div>
-            
-            <Button 
-              className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]"
-              onClick={() => setIsAuthenticated(true)}
-            >
-              Try Demo Access
-            </Button>
           </div>
         </div>
         

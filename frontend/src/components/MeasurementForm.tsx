@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Upload } from "lucide-react";
-import { toast } from "sonner";
+import { toast as reactToast } from "react-toastify";
+import { toast as sonnerToast } from 'sonner';
 import { useState, useRef } from "react";
 import { api, MeasurementData } from "@/lib/api";
 
@@ -34,7 +35,18 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
     // Trigger click on the hidden file input
     fileInputRef.current?.click();
   };
-
+  
+  const ValidateForm = (formValues) => {
+    return !formValues.childName || 
+    !formValues.sex || 
+    !formValues.age || 
+    !formValues.height ||
+    !formValues.weight || 
+    !formValues.height_for_age_z ||  
+    !formValues.weight_for_height_z ||
+    !formValues.weight_for_age_z ||
+    !formValues.WHR;
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -43,25 +55,33 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
       // Collect form data
       const formData = new FormData(e.target as HTMLFormElement);
       const formValues = Object.fromEntries(formData.entries());
+
+      // Validate form values
+      if (ValidateForm(formValues)) {
+        reactToast.error("Please fill in all required fields.");
+        setIsLoading(false);
+        return; // Exit if validation fails
+      }
       
       // Parse numeric values
       const height = parseFloat(formValues.height as string) || 0;
       const weight = parseFloat(formValues.weight as string) || 0;
-      const heightInMeters = height / 100;
+
+      // Parse and validate the sex value
+      const sexValue = parseInt(formValues.sex as string);
+      const sex = (sexValue === 0 || sexValue === 1) ? sexValue : 0;
       
       // Process measurement data
       const measurementData: MeasurementData = {
         childName: formValues.childName as string,
-        sex: formValues.sex as string,
+        sex: parseInt(formValues.sex as string) || 0,
         age: parseFloat(formValues.age as string) || 0,
         height,
         weight,
         height_for_age_z: parseFloat(formValues.height_for_age_z as string) || 0,
         weight_for_height_z: parseFloat(formValues.weight_for_height_z as string) || 0,
         weight_for_age_z: parseFloat(formValues.weight_for_age_z as string) || 0,
-        Height_m: heightInMeters,
-        BMI: weight / (heightInMeters * heightInMeters),
-        WHR: weight / height,
+        WHR: parseFloat(formValues.whr as string) || 0,
         photoUrl: photoPreview || undefined
       };
       
@@ -71,7 +91,7 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
       if (childId) {
         // Add measurement for existing child
         response = await api.addMeasurementForChild(childId, measurementData);
-        toast.success("Measurement added successfully!", {
+        sonnerToast.success("Measurement added successfully!", {
           description: "New child measurement has been recorded."
         });
       } else {
@@ -81,7 +101,7 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
         // Analyze the data
         const analysis = await api.analyzeMeasurements(measurementData);
         
-        toast.success("Data analyzed successfully!", {
+        sonnerToast.success("Data analyzed successfully!", {
           description: "Child measurement has been recorded and analyzed."
         });
       }
@@ -91,7 +111,7 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error("Failed to process measurement data", {
+      sonnerToast.error("Failed to process measurement data", {
         description: error instanceof Error ? error.message : "An unexpected error occurred"
       });
     } finally {
@@ -128,8 +148,8 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="age">Age (months)</Label>
-            <Input id="age" name="age" type="number" step="0.1" placeholder="Enter age in months" />
+            <Label htmlFor="age">Age</Label>
+            <Input id="age" name="age" type="number" step="0.1" placeholder="Enter age in years" />
           </div>
           
           <div className="space-y-2">
@@ -144,17 +164,22 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
           
           <div className="space-y-2">
             <Label htmlFor="height_for_age_z">Height-for-age Z-score</Label>
-            <Input id="height_for_age_z" name="height_for_age_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
+            <Input id="height_for_age_z" name="height_for_age_z" type="number" step="0.01" placeholder="Enter Z-score" />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="weight_for_height_z">Weight-for-height Z-score</Label>
-            <Input id="weight_for_height_z" name="weight_for_height_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
+            <Input id="weight_for_height_z" name="weight_for_height_z" type="number" step="0.01" placeholder="Enter Z-score" />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="weight_for_age_z">Weight-for-age Z-score</Label>
-            <Input id="weight_for_age_z" name="weight_for_age_z" type="number" step="0.01" placeholder="Enter Z-score or leave for calculation" />
+            <Input id="weight_for_age_z" name="weight_for_age_z" type="number" step="0.01" placeholder="Enter Z-score" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="weight_for_age_z">WHR </Label>
+            <Input id="whr" name="whr" type="number" step="0.01" placeholder="Enter Waist-to-Hip Ratio" />
           </div>
           
           <div className="space-y-2">

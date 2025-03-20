@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 import os
 from app.routes.prediction import router as prediction_router
 from app.routes.auth_router import router as auth_router
+from app.routes.children import router as children_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -15,10 +16,7 @@ app = FastAPI(
 
 # Configure CORS for React frontend
 origins = [
-    "http://localhost:5173",    # Default Vite dev server
-    "http://localhost:3000",    # Alternative port
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:3000",
+    "http://localhost:8080",    # Default Vite dev server
 ]
 
 # Add CORS middleware
@@ -26,13 +24,15 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,  # More restrictive than "*" for production
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Include routers
-app.include_router(prediction_router, prefix="/api/v1", tags=["Predictions"])
-app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(prediction_router, prefix="/api", tags=["Predictions"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(children_router)
+
 
 # Health check endpoint
 @app.get("/", tags=["Health"])
