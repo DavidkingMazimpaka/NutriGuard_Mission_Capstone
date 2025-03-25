@@ -4,3 +4,4 @@ venv/
 package.json
 package-lock.json
 tailwind.config.ts
+.vercel

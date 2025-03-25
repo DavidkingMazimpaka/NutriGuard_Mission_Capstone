@@ -16,11 +16,12 @@ app = FastAPI(
     version="1.0.0"
 )
 
-
+# Define the frontend build directory globally
+frontend_build_dir = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "https://nutri-guard-ai.vercel.app/"],
+    allow_origins=["http://localhost:8080", "https://nutri-guard-ai.vercel.app/", "https://nutri-guard-dffryfiub-davidkings-projects.vercel.app/"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,17 +49,10 @@ async def root():
 # Serve Vite React build files in production
 @app.on_event("startup")
 async def startup_event():
-    """
-    Check if we're in production mode and if the frontend build exists
-    """
-    frontend_build_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "dist")
     if os.path.exists(frontend_build_dir):
         app.mount("/", StaticFiles(directory=frontend_build_dir, html=True), name="frontend")
-        
-        @app.get("/{full_path:path}", include_in_schema=False)
-        async def serve_react_app(full_path: str):
-            """Serve the React app for any unmatched routes"""
-            index_path = os.path.join(frontend_build_dir, "index.html")
-            if os.path.exists(index_path):
-                return FileResponse(index_path)
-            return {"error": "Frontend not found"}
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_react_app(full_path: str):
+    index_path = os.path.join(frontend_build_dir, "index.html")
+    return FileResponse(index_path)
