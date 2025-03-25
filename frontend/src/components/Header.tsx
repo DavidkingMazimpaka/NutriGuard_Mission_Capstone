@@ -7,6 +7,7 @@ import AuthDialog from "./AuthDialog";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,7 +70,7 @@ const Header = () => {
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
           </Button>
-          <AuthDialog />
+          <AuthDialog setIsAuthenticated={setIsAuthenticated} />
         </div>
       </div>
     </header>

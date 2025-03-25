@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -11,32 +10,35 @@ import { SeverityVisualization } from "@/components/SeverityVisualization";
 import { RecommendedActions } from "@/components/RecommendedActions";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import api from "@/lib/api";
 
 const MalnutritionResults = () => {
   const [searchParams] = useSearchParams();
   const childId = searchParams.get("childId");
   const navigate = useNavigate();
   
-  // In a real app, these would come from API/backend
-  // Mock data for demonstration
-  const [resultData] = useState({
-    childName: "Maria Garcia",
-    age: "3 years 5 months",
-    gender: "female",
-    classification: "moderate", // low, moderate, high, critical
-    zScores: {
-      weightForAge: -1.8,
-      heightForAge: -1.5,
-      weightForHeight: -1.9
-    },
-    bmi: 15.2,
-    measurements: {
-      weight: 13.2,
-      height: 95.6,
-      muac: 13.1,
-    },
-    assessmentDate: new Date().toISOString(),
-  });
+  const [resultData, setResultData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchPredictions = async () => {
+      try {
+        if (childId) {
+          const response = await api.getChildPredictions(childId);
+          setResultData(response);
+        } else {
+          setError("Child ID is missing");
+        }
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPredictions();
+  }, [childId]);
 
   const handlePrintResults = () => {
     toast.success("Preparing print view...");
@@ -54,6 +56,9 @@ const MalnutritionResults = () => {
       description: "A follow-up appointment has been set for 30 days from now."
     });
   };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-background animate-fadeIn print:bg-white print:pt-0">

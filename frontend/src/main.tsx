@@ -1,12 +1,16 @@
-
+import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import './index.css';
 
-// Redirect to welcome page if first visit and not already on welcome page
-if (!localStorage.getItem('hasVisited') && !window.location.pathname.includes('/welcome')) {
-  localStorage.setItem('hasVisited', 'true');
-  window.location.href = '/welcome';
-} 
+// Initialize React app
+const root = createRoot(document.getElementById("root")!);
 
-createRoot(document.getElementById("root")!).render(<App />);
+root.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </React.StrictMode>
+);

@@ -20,7 +20,6 @@ interface ChildReportProps {
     age: number;
     weight: number;
     height: number;
-    muac: number;
     weightForAge: number;
     heightForAge: number;
     weightForHeight: number;
@@ -112,7 +111,7 @@ const ChildReport = ({ childId, childName, measurements, status }: ChildReportPr
                       <td className="px-4 py-2">{measurement.age}</td>
                       <td className="px-4 py-2">{measurement.weight}</td>
                       <td className="px-4 py-2">{measurement.height}</td>
-                      <td className="px-4 py-2">{measurement.muac}</td>
+                      <td className="px-4 py-2">{(measurement.weight / (measurement.height / 100)).toFixed(1)}</td>
                       <td className={`px-4 py-2 ${
                         measurement.weightForAge < -2 ? "text-destructive" : 
                         measurement.weightForAge < -1 ? "text-amber-500" : 
@@ -149,7 +148,7 @@ const ChildReport = ({ childId, childName, measurements, status }: ChildReportPr
               </p>
               <p className="mb-2">
                 <strong>Latest Measurements:</strong> Weight: {measurements[0].weight}kg, 
-                Height: {measurements[0].height}cm, MUAC: {measurements[0].muac}cm
+                Height: {measurements[0].height}cm
               </p>
               <p className="mb-2">
                 <strong>Z-Scores:</strong> Weight-for-Age: {measurements[0].weightForAge.toFixed(1)}, 

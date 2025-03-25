@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, Float, String, DateTime
 from sqlalchemy.orm import declarative_base
+from sqlalchemy import Text
 import datetime
 
 Base = declarative_base()
@@ -19,5 +20,6 @@ class ChildHealthRecord(Base):
     height_m = Column(Float, nullable=False)
     bmi = Column(Float, nullable=False)
     whr = Column(Float, nullable=False)
+    photo_url = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 

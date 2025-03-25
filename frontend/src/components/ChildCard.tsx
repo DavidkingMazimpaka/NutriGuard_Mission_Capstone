@@ -1,9 +1,10 @@
-
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Calendar, ChevronRight, Ruler, Weight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Eye, AlertTriangle, CheckCircle, Weight, Ruler } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 interface ChildCardProps {
   id: string;
@@ -17,82 +18,113 @@ interface ChildCardProps {
   image?: string;
 }
 
-const ChildCard = ({
-  id,
-  name,
-  age,
-  gender,
-  weight,
-  height,
-  lastMeasurement,
-  status,
-  image
+const ChildCard = ({ 
+  id, 
+  name, 
+  age, 
+  gender, 
+  weight, 
+  height, 
+  lastMeasurement, 
+  status, 
+  image 
 }: ChildCardProps) => {
+  const getStatusInfo = () => {
+    switch(status) {
+      case "danger":
+        return {
+          icon: <AlertTriangle className="h-4 w-4" />,
+          label: "Urgent Attention",
+          className: "bg-destructive/10 text-destructive border-destructive"
+        };
+      case "warning":
+        return {
+          icon: <AlertTriangle className="h-4 w-4" />,
+          label: "Needs Monitoring",
+          className: "bg-warning/10 text-warning border-warning"
+        };
+      default:
+        return {
+          icon: <CheckCircle className="h-4 w-4" />,
+          label: "Normal Growth",
+          className: "bg-secondary/10 text-secondary border-secondary"
+        };
+    }
+  };
+
+  const statusInfo = getStatusInfo();
+
   return (
-    <Card className="overflow-hidden animate-fadeIn card-hover">
-      <CardHeader className="p-0">
-        <div className="relative h-36 bg-gradient-to-r from-accent to-primary/20">
-          {image ? (
-            <img 
-              src={image} 
-              alt={name} 
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full bg-background flex items-center justify-center text-2xl font-bold">
-              {name.charAt(0)}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+        <CardHeader className="p-0">
+          <div className={`h-1.5 w-full ${
+            status === "danger" ? "bg-destructive" :
+            status === "warning" ? "bg-warning" :
+            "bg-secondary"
+          }`} />
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="flex items-start gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary">
+              <AvatarImage src={image || "/placeholder.svg"} alt={name} />
+              <AvatarFallback className="bg-primary/5">
+                {name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold tracking-tight">{name}</h3>
+              <p className="text-sm text-muted-foreground">{age} • {gender}</p>
+              <Badge 
+                variant="outline" 
+                className={`mt-2 ${statusInfo.className}`}
+              >
+                {statusInfo.icon}
+                <span className="ml-1">{statusInfo.label}</span>
+              </Badge>
             </div>
-          )}
-          <Badge 
-            className={`absolute top-4 right-4 ${
-              status === "normal" ? "bg-secondary text-secondary-foreground" : 
-              status === "warning" ? "bg-warning text-warning-foreground" : 
-              "bg-destructive text-destructive-foreground"
-            }`}
+          </div>
+          
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center text-muted-foreground">
+                <Weight className="h-4 w-4 mr-2" />
+                <span className="text-sm">Weight</span>
+              </div>
+              <p className="text-lg font-medium">{weight} kg</p>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center text-muted-foreground">
+                <Ruler className="h-4 w-4 mr-2" />
+                <span className="text-sm">Height</span>
+              </div>
+              <p className="text-lg font-medium">{height} cm</p>
+            </div>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-xs text-muted-foreground">
+              Last measured: {lastMeasurement}
+            </p>
+          </div>
+          
+          <Button 
+            asChild 
+            className="w-full mt-4 transition-all hover:scale-105" 
+            variant="default"
           >
-            {status === "normal" ? "Normal Growth" : 
-             status === "warning" ? "Needs Attention" : 
-             "Urgent Action Needed"}
-          </Badge>
-          {!image && (
-            <div className="absolute bottom-4 right-4">
-              <div className={`w-3 h-3 rounded-full ${
-                gender === "male" ? "bg-blue-500" : "bg-pink-500"
-              }`}></div>
-            </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="p-4">
-        <h3 className="text-xl font-semibold mb-2">{name}</h3>
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{age}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{lastMeasurement}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Weight className="h-4 w-4 text-muted-foreground" />
-            <span>{weight} kg</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Ruler className="h-4 w-4 text-muted-foreground" />
-            <span>{height} cm</span>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-end">
-        <Button asChild variant="ghost" className="gap-1">
-          <Link to={`/child/${id}`}>
-            View Profile
-            <ChevronRight className="h-4 w-4" />
-          </Link>
-        </Button>
-      </CardFooter>
-    </Card>
+            <Link to={`/child/${id}`} className="flex items-center justify-center">
+              <Eye className="mr-2 h-4 w-4" />
+              View Profile
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

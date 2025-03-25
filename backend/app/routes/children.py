@@ -1,11 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 from app.database.database import SessionLocal
 from app.models.child_health_record import ChildHealthRecord
 import datetime
 from typing import Optional
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field
 import logging
+import os
+import shutil
 
 router = APIRouter()
 
@@ -20,44 +22,70 @@ def get_db():
     finally:
         db.close()
 
-# Pydantic model for input validation
+# Pydantic model for input validation (without photoUrl)
 class ChildCreate(BaseModel):
-    name: str 
-    sex: int  # 0 = Female, 1 = Male
-    age: int
-    height: float
-    weight: float
+    name: str = Field(..., min_length=1, description="Child's name is required")
+    sex: int = Field(..., ge=0, le=1, description="Sex should be 0 (Female) or 1 (Male)")
+    age: int = Field(..., ge=0, description="Age should be a positive integer")
+    height: float = Field(..., gt=0, description="Height should be a positive number")
+    weight: float = Field(..., gt=0, description="Weight should be a positive number")
     height_for_age_z: float
     weight_for_height_z: float
     weight_for_age_z: float
-    whr: float
+    whr: float = Field(..., ge=0, description="WHR should be non-negative")
 
-@router.post("/api/children/")
-async def create_child_record(input_data: ChildCreate, db: Session = Depends(get_db)):
+
+@router.post("")
+async def create_child_record(
+    name: str = Form(...),
+    sex: int = Form(...),
+    age: int = Form(...),
+    height: float = Form(...),
+    weight: float = Form(...),
+    height_for_age_z: float = Form(...),
+    weight_for_height_z: float = Form(...),
+    weight_for_age_z: float = Form(...),
+    whr: float = Form(...),
+    photo: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
     """
     Stores child health data in the database for future model training.
     """
     try:
-        # Calculate BMI using the formula
-        height_in_meters = input_data.height / 100  # Convert height to meters
-        bmi = input_data.weight / (height_in_meters ** 2)  # Calculate BMI
-        
         # Convert sex from numeric (0/1) to string (Female/Male) for database storage
-        sex_str = "Male" if input_data.sex == 1 else "Female"
+        sex_str = "Male" if sex == 1 else "Female"
 
+        # Calculate BMI
+        height_in_meters = height / 100  # Convert height to meters
+        bmi = weight / (height_in_meters ** 2)  # BMI formula
+
+        # Save the uploaded photo
+        if not os.path.exists("images"):
+            os.makedirs("images")
+        
+        # Generate a unique file path
+        file_path = f'images/{name}_{datetime.datetime.utcnow().strftime("%Y%m%d%H%M%S")}.jpg'
+        
+        # Save the file securely without decoding
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(photo.file, buffer)
+        
+        # Create a new child health record
         new_record = ChildHealthRecord(
-            name=input_data.name,  # Placeholder name
+            name=name,
             sex=sex_str,
-            age=input_data.age,
-            height=input_data.height,
-            weight=input_data.weight,
-            height_for_age_z=input_data.height_for_age_z,
-            weight_for_height_z=input_data.weight_for_height_z,
-            weight_for_age_z=input_data.weight_for_age_z,
+            age=age,
+            height=height,
+            weight=weight,
+            height_for_age_z=height_for_age_z,
+            weight_for_height_z=weight_for_height_z,
+            weight_for_age_z=weight_for_age_z,
             height_m=height_in_meters,
             bmi=bmi,
-            whr=input_data.whr,
-            created_at=datetime.datetime.utcnow()  # Use UTC time
+            whr=whr,
+            created_at=datetime.datetime.utcnow(),
+            photo_url=file_path  # Store the path in DB
         )
         
         # Add to database and commit
@@ -67,9 +95,6 @@ async def create_child_record(input_data: ChildCreate, db: Session = Depends(get
 
         return {"message": "Child health record stored successfully", "id": new_record.id}
 
-    except ValidationError as e:
-        logging.error(f"Validation error: {str(e)}")
-        raise HTTPException(status_code=422, detail=f"Validation error: {str(e)}")
     except Exception as e:
-        logging.error(f"Database error: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        logging.error(f"Error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="An error occurred. Please try again.")

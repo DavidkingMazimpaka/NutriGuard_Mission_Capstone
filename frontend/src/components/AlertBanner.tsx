@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { cva } from "class-variance-authority";
@@ -25,6 +24,7 @@ interface AlertBannerProps {
   title: string;
   description: string;
   className?: string;
+  icon?: React.ReactNode;
 }
 
 const AlertBanner = ({
@@ -32,8 +32,9 @@ const AlertBanner = ({
   title,
   description,
   className,
+  icon, // Add icon prop
 }: AlertBannerProps) => {
-  const Icon = status === "normal" 
+  const DefaultIcon = status === "normal" 
     ? CheckCircle 
     : status === "warning" 
       ? AlertTriangle 
@@ -41,7 +42,7 @@ const AlertBanner = ({
 
   return (
     <Alert className={cn(alertVariants({ status }), className)}>
-      <Icon className="h-5 w-5" />
+      {icon ? icon : <DefaultIcon className="h-5 w-5" />} {/* Render custom icon if provided */}
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
         {description}

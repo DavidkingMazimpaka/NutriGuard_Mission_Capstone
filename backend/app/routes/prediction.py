@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from sqlalchemy.orm import Session
 from app.models.prediction_model import MalnutritionInput, MalnutritionOutput
 from app.models.ml_model import predict_malnutrition
@@ -19,47 +19,31 @@ def get_db():
         db.close()
 
 @router.post("/predict", response_model=MalnutritionOutput)
-async def predict_malnutrition_api(input_data: MalnutritionInput, db: Session = Depends(get_db)):
+async def predict_malnutrition_api(child_id: int = Query(...), db: Session = Depends(get_db)):
     """
-    Predicts malnutrition status based on input measurements.
+    Predicts malnutrition status based on input measurements from the database.
     Returns malnutrition classification as Critical, High, Moderate, or Low.
     """
     try:
-        # Convert sex from numeric (0/1) to string (Female/Male) for database storage
-        sex_str = "Male" if input_data.Sex == 1 else "Female"
+        # Fetch the child's health record from the database
+        record = db.query(ChildHealthRecord).filter(ChildHealthRecord.id == child_id).first()
         
-        # Create a new record using your existing ChildHealthRecord model
-        new_record = ChildHealthRecord(
-            name="Anonymous",  # Since your model requires a name field
-            sex=sex_str,  # Store as string in database
-            age=int(input_data.Age),  # Convert to int as your model expects
-            height=input_data.Height,
-            weight=input_data.Weight,
-            height_for_age_z=input_data.height_for_age_z,
-            weight_for_height_z=input_data.weight_for_height_z,
-            weight_for_age_z=input_data.weight_for_age_z,
-            height_m=input_data.Height_m,
-            bmi=input_data.BMI,
-            whr=input_data.WHR
-        )
-        
-        # Add to database and commit
-        db.add(new_record)
-        db.commit()
-        db.refresh(new_record)
+        if not record:
+            raise HTTPException(status_code=404, detail="Child health record not found")
 
         # Prepare data for ML model - use numeric Sex value for prediction
+        sex_numeric = 1 if record.sex.lower() == "male" else 0
         features = [
-            input_data.Sex,  # Keep as numeric (0/1) for the ML model
-            input_data.Age, 
-            input_data.Height, 
-            input_data.Weight,
-            input_data.height_for_age_z, 
-            input_data.weight_for_height_z,
-            input_data.weight_for_age_z, 
-            input_data.Height_m, 
-            input_data.BMI, 
-            input_data.WHR
+            sex_numeric,  # Convert sex to numeric (0/1) for the ML model
+            record.age, 
+            record.height, 
+            record.weight,
+            record.height_for_age_z, 
+            record.weight_for_height_z,
+            record.weight_for_age_z, 
+            record.height_m, 
+            record.bmi, 
+            record.whr
         ]
 
         # Get prediction from ML model

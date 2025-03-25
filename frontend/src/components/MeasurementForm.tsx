@@ -1,142 +1,155 @@
-
-import React from 'react';
+import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Upload } from "lucide-react";
 import { toast as reactToast } from "react-toastify";
 import { toast as sonnerToast } from 'sonner';
-import { useState, useRef } from "react";
 import { api, MeasurementData } from "@/lib/api";
 
 interface MeasurementFormProps {
-  onSubmit?: (data: any) => void;
+  onSubmit?: (data: MeasurementData) => void;
   childId?: string;
 }
 
-const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
+const MeasurementForm: React.FC<MeasurementFormProps> = ({ onSubmit, childId }) => {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [sex, setSex] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [countdown, setCountdown] = useState(5);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const [sex, setSex] = useState<string>("");
+  const navigate = useNavigate();
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      // Create a URL for the selected image
-      const imageUrl = URL.createObjectURL(file);
-      setPhotoPreview(imageUrl);
+    if (file) setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleUploadClick = () => fileInputRef.current?.click();
+
+  const validateForm = (form: HTMLFormElement): boolean => {
+    const requiredFields = [
+      'name', 'sex', 'age', 'height', 'weight',
+      'height_for_age_z', 'weight_for_height_z',
+      'weight_for_age_z', 'whr'
+    ];
+    for (const field of requiredFields) {
+      const el = form.elements.namedItem(field) as HTMLInputElement | HTMLSelectElement;
+      if (!el?.value) return false;
     }
+    const photo = (form.elements.namedItem('photo') as HTMLInputElement)?.files?.[0];
+    return !!photo;
   };
-  
-  const handleUploadClick = () => {
-    // Trigger click on the hidden file input
-    fileInputRef.current?.click();
-  };
-  
-  const ValidateForm = (formValues) => {
-    return !formValues.childName || 
-    !formValues.sex || 
-    !formValues.age || 
-    !formValues.height ||
-    !formValues.weight || 
-    !formValues.height_for_age_z ||  
-    !formValues.weight_for_height_z ||
-    !formValues.weight_for_age_z ||
-    !formValues.WHR;
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
+    const form = e.currentTarget;
+
+    if (!validateForm(form)) {
+      reactToast.error("Please fill in all required fields and upload a photo.");
+      setIsLoading(false);
+      return;
+    }
+
+    const photoFile = (form.elements.namedItem('photo') as HTMLInputElement).files?.[0];
+    if (!photoFile) {
+      reactToast.error("Photo is required.");
+      setIsLoading(false);
+      return;
+    }
+
+    const measurementData: MeasurementData = {
+      name: (form.elements.namedItem('name') as HTMLInputElement).value,
+      sex: (form.elements.namedItem('sex') as HTMLInputElement).value,
+      age: Number((form.elements.namedItem('age') as HTMLInputElement).value),
+      height: Number((form.elements.namedItem('height') as HTMLInputElement).value),
+      weight: Number((form.elements.namedItem('weight') as HTMLInputElement).value),
+      height_for_age_z: Number((form.elements.namedItem('height_for_age_z') as HTMLInputElement).value),
+      weight_for_height_z: Number((form.elements.namedItem('weight_for_height_z') as HTMLInputElement).value),
+      weight_for_age_z: Number((form.elements.namedItem('weight_for_age_z') as HTMLInputElement).value),
+      whr: Number((form.elements.namedItem('whr') as HTMLInputElement).value),
+      photo: photoFile
+    };
+
     try {
-      // Collect form data
-      const formData = new FormData(e.target as HTMLFormElement);
-      const formValues = Object.fromEntries(formData.entries());
+      const response = childId
+        ? await api.addMeasurementForChild(childId, measurementData)
+        : await api.submitMeasurement(measurementData);
 
-      // Validate form values
-      if (ValidateForm(formValues)) {
-        reactToast.error("Please fill in all required fields.");
-        setIsLoading(false);
-        return; // Exit if validation fails
-      }
-      
-      // Parse numeric values
-      const height = parseFloat(formValues.height as string) || 0;
-      const weight = parseFloat(formValues.weight as string) || 0;
+      const newChildId = response.id;
+      sonnerToast.success("Success!", { description: "Measurement has been recorded." });
+      onSubmit?.(response);
+      form.reset();
+      setPhotoPreview(null);
+      setSex('');
 
-      // Parse and validate the sex value
-      const sexValue = parseInt(formValues.sex as string);
-      const sex = (sexValue === 0 || sexValue === 1) ? sexValue : 0;
-      
-      // Process measurement data
-      const measurementData: MeasurementData = {
-        childName: formValues.childName as string,
-        sex: parseInt(formValues.sex as string) || 0,
-        age: parseFloat(formValues.age as string) || 0,
-        height,
-        weight,
-        height_for_age_z: parseFloat(formValues.height_for_age_z as string) || 0,
-        weight_for_height_z: parseFloat(formValues.weight_for_height_z as string) || 0,
-        weight_for_age_z: parseFloat(formValues.weight_for_age_z as string) || 0,
-        WHR: parseFloat(formValues.whr as string) || 0,
-        photoUrl: photoPreview || undefined
-      };
-      
-      let response;
-      
-      // Submit data to API
-      if (childId) {
-        // Add measurement for existing child
-        response = await api.addMeasurementForChild(childId, measurementData);
-        sonnerToast.success("Measurement added successfully!", {
-          description: "New child measurement has been recorded."
+      // Start analyzing data
+      setIsAnalyzing(true);
+      setIsLoading(false);
+
+      // Countdown timer
+      const countdownInterval = setInterval(() => {
+        setCountdown((prevCountdown) => {
+          if (prevCountdown === 1) {
+            clearInterval(countdownInterval);
+            navigate(`/malnutrition-results?childId=${newChildId}`);
+          }
+          return prevCountdown - 1;
         });
-      } else {
-        // Submit data for new child
-        response = await api.submitMeasurement(measurementData);
-        
-        // Analyze the data
-        const analysis = await api.analyzeMeasurements(measurementData);
-        
-        sonnerToast.success("Data analyzed successfully!", {
-          description: "Child measurement has been recorded and analyzed."
-        });
-      }
-      
-      if (onSubmit) {
-        onSubmit(measurementData);
-      }
+      }, 1000);
     } catch (error) {
-      console.error("Error submitting form:", error);
-      sonnerToast.error("Failed to process measurement data", {
-        description: error instanceof Error ? error.message : "An unexpected error occurred"
+      console.error("Submission error:", error);
+      sonnerToast.error("Submission failed", {
+        description: error instanceof Error ? error.message : "Unknown error occurred"
       });
-    } finally {
       setIsLoading(false);
     }
   };
+
+  if (isAnalyzing) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <h1 className="text-3xl font-bold mb-4">Analyzing Data</h1>
+        <p className="text-xl">Please wait...</p>
+        <div className="text-6xl font-bold mt-4">{countdown}</div>
+      </div>
+    );
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle>{childId ? "Add New Measurement" : "Register New Child for Prediction"}</CardTitle>
-        <CardDescription>
-          Enter child's details to track nutrition status
-        </CardDescription>
+        <CardDescription>Enter child's details to track nutrition status</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="childName">Child's Name</Label>
-            <Input id="childName" name="childName" placeholder="Full name" />
-          </div>
-          
+          {/* Text Inputs */}
+          {[
+            { label: "Child's Name", name: "name", type: "text", placeholder: "Full name" },
+            { label: "Age (years)", name: "age", type: "number", placeholder: "Enter age" },
+            { label: "Height (cm)", name: "height", type: "number", placeholder: "Enter height", step: "0.1" },
+            { label: "Weight (kg)", name: "weight", type: "number", placeholder: "Enter weight", step: "0.1" },
+            { label: "Height-for-age Z-score", name: "height_for_age_z", type: "number", placeholder: "Enter Z-score", step: "0.01" },
+            { label: "Weight-for-height Z-score", name: "weight_for_height_z", type: "number", placeholder: "Enter Z-score", step: "0.01" },
+            { label: "Weight-for-age Z-score", name: "weight_for_age_z", type: "number", placeholder: "Enter Z-score", step: "0.01" },
+            { label: "Waist-to-Hip Ratio", name: "whr", type: "number", placeholder: "Enter Ratio", step: "0.01" }
+          ].map(({ label, name, type, placeholder, step }) => (
+            <div className="space-y-2" key={name}>
+              <Label htmlFor={name}>{label}</Label>
+              <Input id={name} name={name} type={type} step={step} placeholder={placeholder} required />
+            </div>
+          ))}
+
+          {/* Sex Selection */}
           <div className="space-y-2">
             <Label htmlFor="sex">Sex</Label>
-            <Select name="sex" value={sex} onValueChange={setSex}>
+            <Select name="sex" value={sex} onValueChange={setSex} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select sex" />
               </SelectTrigger>
@@ -146,90 +159,38 @@ const MeasurementForm = ({ onSubmit, childId }: MeasurementFormProps) => {
               </SelectContent>
             </Select>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="age">Age</Label>
-            <Input id="age" name="age" type="number" step="0.1" placeholder="Enter age in years" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="height">Height (cm)</Label>
-            <Input id="height" name="height" type="number" step="0.1" placeholder="Enter height" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="weight">Weight (kg)</Label>
-            <Input id="weight" name="weight" type="number" step="0.1" placeholder="Enter weight" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="height_for_age_z">Height-for-age Z-score</Label>
-            <Input id="height_for_age_z" name="height_for_age_z" type="number" step="0.01" placeholder="Enter Z-score" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="weight_for_height_z">Weight-for-height Z-score</Label>
-            <Input id="weight_for_height_z" name="weight_for_height_z" type="number" step="0.01" placeholder="Enter Z-score" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="weight_for_age_z">Weight-for-age Z-score</Label>
-            <Input id="weight_for_age_z" name="weight_for_age_z" type="number" step="0.01" placeholder="Enter Z-score" />
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="weight_for_age_z">WHR </Label>
-            <Input id="whr" name="whr" type="number" step="0.01" placeholder="Enter Waist-to-Hip Ratio" />
-          </div>
-          
+          {/* Photo Upload */}
           <div className="space-y-2">
             <Label>Child's Photo</Label>
             <div className="flex flex-col items-center gap-4">
-              <input 
-                type="file" 
+              <input
+                type="file"
                 name="photo"
-                accept="image/*" 
-                className="hidden" 
+                accept="image/*"
                 ref={fileInputRef}
                 onChange={handleFileSelect}
+                className="hidden"
+                required
               />
-              
               {photoPreview ? (
                 <div className="relative w-full h-40 bg-muted rounded-md overflow-hidden">
-                  <img 
-                    src={photoPreview} 
-                    alt="Child's photo preview" 
-                    className="w-full h-full object-cover"
-                  />
-                  <Button 
-                    variant="secondary" 
-                    size="sm" 
-                    className="absolute bottom-2 right-2"
-                    onClick={handleUploadClick}
-                    type="button"
-                  >
+                  <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                  <Button variant="secondary" size="sm" className="absolute bottom-2 right-2" onClick={handleUploadClick} type="button">
                     <Camera className="h-4 w-4 mr-1" /> Change
                   </Button>
                 </div>
               ) : (
-                <Button 
-                  variant="outline" 
-                  className="w-full h-40 flex flex-col items-center justify-center gap-2"
-                  onClick={handleUploadClick}
-                  type="button"
-                >
+                <Button variant="outline" className="w-full h-40 flex flex-col items-center justify-center gap-2" onClick={handleUploadClick} type="button">
                   <Upload className="h-8 w-8 text-muted-foreground" />
-                  <span>Upload Photo</span>
+                  <span>Upload Photo (Required)</span>
                 </Button>
               )}
             </div>
           </div>
-          
-          <Button 
-            type="submit" 
-            className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]"
-            disabled={isLoading}
-          >
+
+          {/* Submit Button */}
+          <Button type="submit" className="w-full bg-[#7fcf5f] hover:bg-[#6cbf4f]" disabled={isLoading}>
             {isLoading ? "Processing..." : childId ? "Save Measurement" : "Analyze Data"}
           </Button>
         </form>

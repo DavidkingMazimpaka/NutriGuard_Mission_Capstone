@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import  { registerUser } from "@/lib/api";
 
 // Define signup form schema
 const signupSchema = z.object({
@@ -41,12 +42,27 @@ const SignupForm = ({ onSuccess }: SignupFormProps) => {
     },
   });
 
-  const onSubmit = (values: SignupFormValues) => {
-    console.log("Signup values:", values);
-    toast.success("Account created successfully!", {
-      description: "Welcome to NutriGuard!",
-    });
-    onSuccess(values);
+  const onSubmit = async (values: SignupFormValues) => {
+    try {
+      const payload = {
+        username: values.name,
+        email: values.email,
+        password: values.password,
+      };
+      // calling API to register the user
+      const response = await registerUser(payload);
+      console.log("✅ [SignupForm]: User registered successfully", response);
+      toast.success("Account created successfully", {
+        description: `Welcome to NutriGuard, ${response.username}!`,
+        duration: 5000
+      });
+      onSuccess(values);
+    } catch (error) {
+      toast.error("Failed to create account", {
+        description: error.message || "Something went wrong. Please try again.",
+        duration: 2000
+      });
+    }
   };
 
   return (
