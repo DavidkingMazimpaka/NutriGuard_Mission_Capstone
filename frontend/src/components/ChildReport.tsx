@@ -98,7 +98,6 @@ const ChildReport = ({ childId, childName, measurements, status }: ChildReportPr
                     <th className="px-4 py-2 text-left">Age (months)</th>
                     <th className="px-4 py-2 text-left">Weight (kg)</th>
                     <th className="px-4 py-2 text-left">Height (cm)</th>
-                    <th className="px-4 py-2 text-left">MUAC (cm)</th>
                     <th className="px-4 py-2 text-left">Weight-for-Age</th>
                     <th className="px-4 py-2 text-left">Height-for-Age</th>
                     <th className="px-4 py-2 text-left">Weight-for-Height</th>

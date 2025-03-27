@@ -1,40 +1,41 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, AlertCircle, AlertTriangle, XCircle } from "lucide-react";
+import { MalnutritionClassification } from "@/lib/api";
 
 interface MalnutritionResultPanelProps {
-  classification: "low" | "moderate" | "high" | "critical";
+  classification: MalnutritionClassification;
   zScores: {
-    weightForAge: number;
-    heightForAge: number;
-    weightForHeight: number;
+    weightForAge?: number;
+    heightForAge?: number;
+    weightForHeight?: number;
   };
   bmi: number;
   measurements: {
     weight: number;
     height: number;
-    muac: number;
   };
+  photo_data?: string;
 }
 
-export const MalnutritionResultPanel = ({
+const MalnutritionResultPanel: React.FC<MalnutritionResultPanelProps> = ({
   classification,
-  zScores,
+  zScores = {},
   bmi,
-  measurements
-}: MalnutritionResultPanelProps) => {
+  measurements,
+  photo_data
+}) => {
   const getClassificationDetails = () => {
     switch (classification) {
-      case "low":
+      case MalnutritionClassification.Normal:
         return {
-          title: "Low Risk",
-          description: "Normal nutritional status with minimal concern.",
+          title: "Normal Growth",
+          description: "Child is growing within the expected range for their age and gender.",
           color: "bg-green-100 border-green-200",
           textColor: "text-green-700",
           icon: <CheckCircle className="h-12 w-12 text-green-500" />
         };
-      case "moderate":
+      case MalnutritionClassification.Moderate:
         return {
           title: "Moderate Risk",
           description: "Signs of mild to moderate malnutrition present.",
@@ -42,7 +43,7 @@ export const MalnutritionResultPanel = ({
           textColor: "text-yellow-700",
           icon: <AlertCircle className="h-12 w-12 text-yellow-500" />
         };
-      case "high":
+      case MalnutritionClassification.High:
         return {
           title: "High Risk",
           description: "Significant signs of malnutrition requiring intervention.",
@@ -50,7 +51,7 @@ export const MalnutritionResultPanel = ({
           textColor: "text-orange-700",
           icon: <AlertTriangle className="h-12 w-12 text-orange-500" />
         };
-      case "critical":
+      case MalnutritionClassification.Critical:
         return {
           title: "Critical Risk",
           description: "Severe malnutrition requiring immediate medical attention.",
@@ -86,6 +87,9 @@ export const MalnutritionResultPanel = ({
             <p className="text-sm text-muted-foreground mt-1">
               {details.description}
             </p>
+            {photo_data && (
+              <img src={photo_data} alt="Child" className="w-full h-40 object-cover mt-4 rounded-md" />
+            )}
           </div>
 
           <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -100,11 +104,10 @@ export const MalnutritionResultPanel = ({
                       zScores.weightForAge < -1 ? "text-yellow-500" : 
                       "text-green-500"
                     }`}>
-                      {zScores.weightForAge.toFixed(1)}
+                      {zScores.weightForAge?.toFixed(1) ?? "N/A"}
                     </span>
                   </div>
                 </div>
-                
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm">Height-for-Age</span>
@@ -113,11 +116,10 @@ export const MalnutritionResultPanel = ({
                       zScores.heightForAge < -1 ? "text-yellow-500" : 
                       "text-green-500"
                     }`}>
-                      {zScores.heightForAge.toFixed(1)}
+                      {zScores.heightForAge?.toFixed(1) ?? "N/A"}
                     </span>
                   </div>
                 </div>
-                
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-sm">Weight-for-Height</span>
@@ -126,13 +128,12 @@ export const MalnutritionResultPanel = ({
                       zScores.weightForHeight < -1 ? "text-yellow-500" : 
                       "text-green-500"
                     }`}>
-                      {zScores.weightForHeight.toFixed(1)}
+                      {zScores.weightForHeight?.toFixed(1) ?? "N/A"}
                     </span>
                   </div>
                 </div>
               </div>
             </div>
-            
             <div>
               <h3 className="font-medium text-lg mb-2">Measurements</h3>
               <div className="space-y-3">
@@ -154,12 +155,6 @@ export const MalnutritionResultPanel = ({
                     {measurements.height.toFixed(1)} cm
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">MUAC</span>
-                  <span className="text-sm font-medium">
-                    {measurements.muac.toFixed(1)} cm
-                  </span>
-                </div>
               </div>
             </div>
           </div>
@@ -168,3 +163,5 @@ export const MalnutritionResultPanel = ({
     </Card>
   );
 };
+
+export default MalnutritionResultPanel;

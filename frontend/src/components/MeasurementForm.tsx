@@ -10,6 +10,20 @@ import { toast as reactToast } from "react-toastify";
 import { toast as sonnerToast } from 'sonner';
 import { api, MeasurementData } from "@/lib/api";
 
+interface MeasurementInput {
+  id?: number;
+  name: string;
+  sex: string;
+  age: number;
+  height: number;
+  weight: number;
+  height_for_age_z: number;
+  weight_for_height_z: number;
+  weight_for_age_z: number;
+  whr: number;
+  photo_data: File;
+}
+
 interface MeasurementFormProps {
   onSubmit?: (data: MeasurementData) => void;
   childId?: string;
@@ -41,7 +55,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ onSubmit, childId }) 
       const el = form.elements.namedItem(field) as HTMLInputElement | HTMLSelectElement;
       if (!el?.value) return false;
     }
-    const photo = (form.elements.namedItem('photo') as HTMLInputElement)?.files?.[0];
+    const photo = (form.elements.namedItem('photo_data') as HTMLInputElement)?.files?.[0];
     return !!photo;
   };
 
@@ -56,14 +70,14 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ onSubmit, childId }) 
       return;
     }
 
-    const photoFile = (form.elements.namedItem('photo') as HTMLInputElement).files?.[0];
+    const photoFile = (form.elements.namedItem('photo_data') as HTMLInputElement).files?.[0];
     if (!photoFile) {
       reactToast.error("Photo is required.");
       setIsLoading(false);
       return;
     }
 
-    const measurementData: MeasurementData = {
+    const measurementData: MeasurementInput = {
       name: (form.elements.namedItem('name') as HTMLInputElement).value,
       sex: (form.elements.namedItem('sex') as HTMLInputElement).value,
       age: Number((form.elements.namedItem('age') as HTMLInputElement).value),
@@ -73,13 +87,13 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ onSubmit, childId }) 
       weight_for_height_z: Number((form.elements.namedItem('weight_for_height_z') as HTMLInputElement).value),
       weight_for_age_z: Number((form.elements.namedItem('weight_for_age_z') as HTMLInputElement).value),
       whr: Number((form.elements.namedItem('whr') as HTMLInputElement).value),
-      photo: photoFile
+      photo_data: photoFile
     };
 
     try {
       const response = childId
-        ? await api.addMeasurementForChild(childId, measurementData)
-        : await api.submitMeasurement(measurementData);
+        ? await api.addMeasurementForChild(childId, { ...measurementData, id: measurementData.id ?? 0 })
+        : await api.submitMeasurement({ ...measurementData, id: measurementData.id ?? 0 });
 
       const newChildId = response.id;
       sonnerToast.success("Success!", { description: "Measurement has been recorded." });
@@ -166,7 +180,7 @@ const MeasurementForm: React.FC<MeasurementFormProps> = ({ onSubmit, childId }) 
             <div className="flex flex-col items-center gap-4">
               <input
                 type="file"
-                name="photo"
+                name="photo_data"
                 accept="image/*"
                 ref={fileInputRef}
                 onChange={handleFileSelect}

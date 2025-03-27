@@ -9,15 +9,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import NutritionGuidance from "@/components/NutritionGuidance";
 import ChildReport from "@/components/ChildReport";
-import api, { MeasurementHistory, MalnutritionClassification } from "@/lib/api";
+import api, { ChildPrediction, MalnutritionClassification } from "@/lib/api";
 
-// Extended interface to include additional prediction-specific properties
-interface ChildPrediction extends MeasurementHistory {
-  predicted_class: MalnutritionClassification;
-  child_name: string;
-  timestamp: string;
-  sex: "male" | "female";
-}
+// Transform backend data to GrowthChart format
+const transformToGrowthChartData = (data: ChildPrediction[]) => {
+  return data.map(measurement => ({
+    date: measurement.date,
+    age: measurement.age,
+    weight: measurement.weight,
+    height: measurement.height,
+    weightForAge: measurement.weightForAge,
+    heightForAge: measurement.heightForAge,
+    weightForHeight: measurement.weightForHeight
+  }));
+};
 
 // Utility function to map prediction class to status
 const mapPredictedClassToStatus = (predictedClass: MalnutritionClassification): "normal" | "warning" | "danger" => {
@@ -54,8 +59,8 @@ const ChildProfile = () => {
           throw new Error("Child ID is missing");
         }
         
-        const response = await api.getChildPredictionData(id);
-        setChild(response as ChildPrediction[]);
+        const response = await api.getChildPredictions(id);
+        setChild(response);
       } catch (err) {
         const errorMessage = err instanceof Error 
           ? err.message 
@@ -140,7 +145,10 @@ const ChildProfile = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-4">
               <Avatar className="w-16 h-16 border-2 border-primary">
-                <AvatarImage src="/placeholder.svg" alt={latestMeasurement.child_name} />
+                <AvatarImage 
+                  src={latestMeasurement.photo_data || "/placeholder.svg"} 
+                  alt={latestMeasurement.child_name} 
+                />
                 <AvatarFallback className="text-2xl">
                   {latestMeasurement.child_name?.charAt(0) || '?'}
                 </AvatarFallback>
@@ -250,7 +258,10 @@ const ChildProfile = () => {
             </Card>
           </div>
           
-          <GrowthChart data={child} name={latestMeasurement.child_name} />
+          <GrowthChart 
+            data={transformToGrowthChartData(child)} 
+            name={latestMeasurement.child_name} 
+          />
           
           <NutritionGuidance 
             status={status}

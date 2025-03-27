@@ -6,21 +6,25 @@ import { Search, PlusCircle, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import AlertBanner from "@/components/AlertBanner";
 import { Link } from "react-router-dom";
-import api from "@/lib/api";
+import api, { ChildHealthRecord, ChildPrediction, MalnutritionClassification } from "@/lib/api";
 
 const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [children, setChildren] = useState([]);
+  const [children, setChildren] = useState<ChildPrediction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchChildrenData = async () => {
       try {
         const response = await api.getAllChildren();
-        setChildren(response);
+        console.log("Raw API response:", response);
+        // Transform ChildHealthRecord[] to ChildPrediction[]
+        const transformedChildren = response.map(api.transformChildData);
+        console.log("Transformed children:", transformedChildren);
+        setChildren(transformedChildren);
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
@@ -30,11 +34,17 @@ const Dashboard = () => {
   }, []);
 
   const filteredChildren = children.filter(child => 
-    child.name.toLowerCase().includes(searchTerm.toLowerCase())
+    child.child_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  const urgentCases = children.filter(child => child.status === "danger").length;
-  const warningCases = children.filter(child => child.status === "warning").length;
+  const urgentCases = children.filter(child => 
+    child.predicted_class === MalnutritionClassification.Critical || 
+    child.predicted_class === MalnutritionClassification.High
+  ).length;
+  
+  const warningCases = children.filter(child => 
+    child.predicted_class === MalnutritionClassification.Moderate
+  ).length;
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -70,29 +80,38 @@ const Dashboard = () => {
           </div>
         </div>
         
-        {(urgentCases > 0 || warningCases > 0) && (
-          <div className="mb-6 space-y-3">
-            {urgentCases > 0 && (
-              <AlertBanner
-                status="danger"
-                title={`${urgentCases} ${urgentCases === 1 ? "child requires" : "children require"} urgent attention`}
-                description="These children have critical growth metrics and need immediate intervention."
-              />
-            )}
-            {warningCases > 0 && (
-              <AlertBanner
-                status="warning"
-                title={`${warningCases} ${warningCases === 1 ? "child needs" : "children need"} monitoring`}
-                description="These children have concerning growth patterns and should be closely monitored."
-              />
-            )}
-          </div>
-        )}
+        <div className="mb-6 space-y-3">
+          {urgentCases > 0 && (
+            <AlertBanner
+              status="danger"
+              title={`${urgentCases} ${urgentCases === 1 ? "child requires" : "children require"} urgent attention`}
+              description="These children have critical growth metrics and need immediate intervention."
+            />
+          )}
+          {warningCases > 0 && (
+            <AlertBanner
+              status="warning"
+              title={`${warningCases} ${warningCases === 1 ? "child needs" : "children need"} monitoring`}
+              description="These children have concerning growth patterns and should be closely monitored."
+            />
+          )}
+        </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
           {filteredChildren.length > 0 ? (
             filteredChildren.map((child) => (
-              <ChildCard key={child.id} {...child} />
+              <ChildCard 
+                key={child.id} 
+                id={child.id.toString()}
+                child_name={child.child_name}
+                age={child.age}
+                sex={child.sex}
+                weight={child.weight}
+                height={child.height}
+                date={child.date}
+                predicted_class={child.predicted_class}
+                photo_data={child.photo_data}
+              />
             ))
           ) : (
             <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">

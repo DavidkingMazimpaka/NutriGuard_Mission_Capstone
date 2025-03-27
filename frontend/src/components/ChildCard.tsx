@@ -5,44 +5,49 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Eye, AlertTriangle, CheckCircle, Weight, Ruler } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { ChildPrediction, MalnutritionClassification } from "@/lib/api";
 
 interface ChildCardProps {
   id: string;
-  name: string;
-  age: string;
-  gender: "male" | "female";
+  child_name: string;
+  age: number;
+  sex: "male" | "female";
   weight: number;
   height: number;
-  lastMeasurement: string;
-  status: "normal" | "warning" | "danger";
-  image?: string;
+  date: string;
+  predicted_class: MalnutritionClassification;
+  photo_data?: string;
 }
 
 const ChildCard = ({ 
   id, 
-  name, 
+  child_name, 
   age, 
-  gender, 
+  sex, 
   weight, 
   height, 
-  lastMeasurement, 
-  status, 
-  image 
+  date, 
+  predicted_class,
+  photo_data 
 }: ChildCardProps) => {
+  console.log("ChildCard received predicted_class:", predicted_class);
+
   const getStatusInfo = () => {
-    switch(status) {
-      case "danger":
+    switch(predicted_class) {
+      case MalnutritionClassification.Critical:
+      case MalnutritionClassification.High:
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
           label: "Urgent Attention",
           className: "bg-destructive/10 text-destructive border-destructive"
         };
-      case "warning":
+      case MalnutritionClassification.Moderate:
         return {
           icon: <AlertTriangle className="h-4 w-4" />,
           label: "Needs Monitoring",
           className: "bg-warning/10 text-warning border-warning"
         };
+      case MalnutritionClassification.Normal:
       default:
         return {
           icon: <CheckCircle className="h-4 w-4" />,
@@ -63,22 +68,25 @@ const ChildCard = ({
       <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <CardHeader className="p-0">
           <div className={`h-1.5 w-full ${
-            status === "danger" ? "bg-destructive" :
-            status === "warning" ? "bg-warning" :
+            predicted_class === MalnutritionClassification.Critical || predicted_class === MalnutritionClassification.High ? "bg-destructive" :
+            predicted_class === MalnutritionClassification.Moderate ? "bg-warning" :
             "bg-secondary"
           }`} />
         </CardHeader>
         <CardContent className="p-6">
           <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16 border-2 border-primary">
-              <AvatarImage src={image || "/placeholder.svg"} alt={name} />
+              <AvatarImage 
+                src={photo_data ? `data:image/jpeg;base64,${photo_data}` : "/placeholder.svg"} 
+                alt={child_name} 
+              />
               <AvatarFallback className="bg-primary/5">
-                {name.charAt(0)}
+                {child_name.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold tracking-tight">{name}</h3>
-              <p className="text-sm text-muted-foreground">{age} • {gender}</p>
+              <h3 className="text-lg font-semibold tracking-tight">{child_name}</h3>
+              <p className="text-sm text-muted-foreground">{age} years old • {sex}</p>
               <Badge 
                 variant="outline" 
                 className={`mt-2 ${statusInfo.className}`}
@@ -108,7 +116,7 @@ const ChildCard = ({
           
           <div className="mt-4 pt-4 border-t">
             <p className="text-xs text-muted-foreground">
-              Last measured: {lastMeasurement}
+              Last measured: {new Date(date).toLocaleDateString()}
             </p>
           </div>
           

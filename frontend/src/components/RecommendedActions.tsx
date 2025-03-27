@@ -3,15 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, AlertTriangle, MapPin } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import { MalnutritionClassification } from "@/lib/api";
 
 interface RecommendedActionsProps {
-  classification: "low" | "moderate" | "high" | "critical";
+  classification: MalnutritionClassification;
 }
 
 export const RecommendedActions = ({ classification }: RecommendedActionsProps) => {
   const getRecommendations = () => {
     switch (classification) {
-      case "low":
+      case MalnutritionClassification.Normal:
         return {
           title: "Continue Healthy Growth",
           description: "Maintain current nutritional practices with regular monitoring.",
@@ -29,7 +30,7 @@ export const RecommendedActions = ({ classification }: RecommendedActionsProps) 
             "Continue age-appropriate feeding practices"
           ]
         };
-      case "moderate":
+      case MalnutritionClassification.Moderate:
         return {
           title: "Increased Monitoring Required",
           description: "Additional nutritional support and closer monitoring needed.",
@@ -47,41 +48,48 @@ export const RecommendedActions = ({ classification }: RecommendedActionsProps) 
             "Add healthy snacks between meals"
           ]
         };
-      case "high":
+      case MalnutritionClassification.High:
         return {
-          title: "Urgent Intervention Needed",
-          description: "Immediate nutritional intervention and medical assessment required.",
+          title: "Immediate Action Required",
+          description: "Significant nutritional intervention needed with close monitoring.",
           actions: [
-            "Immediate referral to nutritionist",
-            "Begin supplementary feeding program",
-            "Weekly weight monitoring",
-            "Medical examination for underlying conditions",
-            "Develop intensive feeding plan"
+            "Seek immediate medical evaluation",
+            "Start therapeutic feeding program",
+            "Monitor weight daily",
+            "Schedule weekly follow-ups",
+            "Begin micronutrient supplementation"
           ],
           nutritionalAdvice: [
-            "Start therapeutic feeding as prescribed",
-            "Implement catch-up growth diet plan",
-            "Use fortified food supplements",
-            "Monitor food intake daily"
+            "High-protein, high-calorie diet",
+            "Frequent small meals",
+            "Fortified foods and supplements",
+            "Regular medical check-ups"
           ]
         };
-      case "critical":
+      case MalnutritionClassification.Critical:
         return {
-          title: "Emergency Medical Care",
-          description: "Immediate hospitalization may be required for intensive care.",
+          title: "Emergency Intervention Required",
+          description: "Immediate medical attention and intensive nutritional support needed.",
           actions: [
-            "Immediate medical evaluation",
-            "Possible hospitalization",
-            "Start therapeutic feeding",
-            "Daily monitoring of vital signs",
-            "Treatment of complications"
+            "Seek emergency medical care",
+            "Begin therapeutic feeding immediately",
+            "Monitor vital signs continuously",
+            "Daily medical evaluation",
+            "Intensive nutritional support"
           ],
           nutritionalAdvice: [
-            "Follow therapeutic feeding protocol",
-            "Careful refeeding to prevent complications",
-            "Specialized medical nutrition therapy",
-            "Monitoring for refeeding syndrome"
+            "Therapeutic feeding formula",
+            "Intensive medical monitoring",
+            "Emergency nutritional intervention",
+            "Immediate treatment of underlying conditions"
           ]
+        };
+      default:
+        return {
+          title: "Assessment Required",
+          description: "Please complete a full assessment to receive recommendations.",
+          actions: [],
+          nutritionalAdvice: []
         };
     }
   };
@@ -97,7 +105,7 @@ export const RecommendedActions = ({ classification }: RecommendedActionsProps) 
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <Alert variant={classification === "critical" ? "destructive" : "default"}>
+          <Alert variant={classification === MalnutritionClassification.Critical ? "destructive" : "default"}>
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>{recommendations.title}</AlertTitle>
             <AlertDescription>
@@ -135,7 +143,7 @@ export const RecommendedActions = ({ classification }: RecommendedActionsProps) 
             </div>
           </div>
 
-          {classification === "critical" && (
+          {classification === MalnutritionClassification.Critical && (
             <>
               <Separator className="my-4" />
               <div>

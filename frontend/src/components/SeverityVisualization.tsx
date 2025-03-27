@@ -1,16 +1,16 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartLegend, ChartLegendContent } from "@/components/ui/chart";
 import { CheckCircle, AlertCircle, AlertTriangle, XCircle } from "lucide-react";
+import { MalnutritionClassification } from "@/lib/api";
 
 interface SeverityVisualizationProps {
-  classification: "low" | "moderate" | "high" | "critical";
+  classification: MalnutritionClassification;
   zScores: {
-    weightForAge: number;
-    heightForAge: number;
-    weightForHeight: number;
+    weightForAge?: number;
+    heightForAge?: number;
+    weightForHeight?: number;
   };
 }
 
@@ -21,13 +21,13 @@ export const SeverityVisualization = ({
   // Determine severity percentage based on classification
   const getSeverityPercentage = () => {
     switch (classification) {
-      case "low":
+      case MalnutritionClassification.Normal:
         return 25;
-      case "moderate":
+      case MalnutritionClassification.Moderate:
         return 50;
-      case "high":
+      case MalnutritionClassification.High:
         return 75;
-      case "critical":
+      case MalnutritionClassification.Critical:
         return 95;
       default:
         return 0;
@@ -37,13 +37,13 @@ export const SeverityVisualization = ({
   // Get color based on classification
   const getProgressColor = () => {
     switch (classification) {
-      case "low":
+      case MalnutritionClassification.Normal:
         return "bg-green-500";
-      case "moderate":
+      case MalnutritionClassification.Moderate:
         return "bg-yellow-500";
-      case "high":
+      case MalnutritionClassification.High:
         return "bg-orange-500";
-      case "critical":
+      case MalnutritionClassification.Critical:
         return "bg-red-500";
       default:
         return "bg-primary";
@@ -134,10 +134,10 @@ export const SeverityVisualization = ({
             <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="flex items-center gap-2 rounded-md border p-3">
                 <div>
-                  {classification === "low" && <CheckCircle className="h-5 w-5 text-green-500" />}
-                  {classification === "moderate" && <AlertCircle className="h-5 w-5 text-yellow-500" />}
-                  {classification === "high" && <AlertTriangle className="h-5 w-5 text-orange-500" />}
-                  {classification === "critical" && <XCircle className="h-5 w-5 text-red-500" />}
+                  {classification === MalnutritionClassification.Normal && <CheckCircle className="h-5 w-5 text-green-500" />}
+                  {classification === MalnutritionClassification.Moderate && <AlertCircle className="h-5 w-5 text-yellow-500" />}
+                  {classification === MalnutritionClassification.High && <AlertTriangle className="h-5 w-5 text-orange-500" />}
+                  {classification === MalnutritionClassification.Critical && <XCircle className="h-5 w-5 text-red-500" />}
                 </div>
                 <div>
                   <div className="text-sm font-medium">Current Classification</div>

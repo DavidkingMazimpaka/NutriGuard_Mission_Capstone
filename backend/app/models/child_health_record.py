@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime
+from sqlalchemy import JSON, Column, Integer, Float, String, DateTime, Text
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Text
 import datetime
 
 Base = declarative_base()
@@ -20,6 +19,9 @@ class ChildHealthRecord(Base):
     height_m = Column(Float, nullable=False)
     bmi = Column(Float, nullable=False)
     whr = Column(Float, nullable=False)
-    photo_url = Column(Text, nullable=True)
+    photo_data = Column(Text, nullable=True)  # Store base64 image data
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    predicted_class = Column(String, nullable=True)
+    confidence = Column(Float, nullable=True)
+    class_probabilities = Column(JSON, nullable=True)
 

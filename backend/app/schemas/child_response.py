@@ -15,7 +15,7 @@ class ChildHealthResponse(BaseModel):
     height_m: float
     bmi: float
     whr: float
-    photo_url: Optional[str] = None
+    photo_data: Optional[str] = None  # Base64 encoded string
     created_at: datetime
     predicted_class: str
     confidence: float

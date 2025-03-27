@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import MeasurementForm from "@/components/MeasurementForm";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ const AddMeasurement = () => {
       navigate(`/child/${childId}`);
     } else {
       // For new child, navigate to malnutrition results
-      navigate("/malnutrition-results", { 
+      navigate(`/malnutrition-results?childId=${data.id}`, { 
         state: { measurementData: data }
       });
     }

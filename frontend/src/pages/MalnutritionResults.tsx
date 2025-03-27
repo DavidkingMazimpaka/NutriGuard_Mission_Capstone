@@ -5,33 +5,44 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Printer, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { MalnutritionResultPanel } from "@/components/MalnutritionResultPanel";
+import MalnutritionResultPanel from "@/components/MalnutritionResultPanel";
 import { SeverityVisualization } from "@/components/SeverityVisualization";
 import { RecommendedActions } from "@/components/RecommendedActions";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import api from "@/lib/api";
+import api, { ChildPrediction } from "@/lib/api";
 
 const MalnutritionResults = () => {
   const [searchParams] = useSearchParams();
   const childId = searchParams.get("childId");
   const navigate = useNavigate();
   
-  const [resultData, setResultData] = useState(null);
+  const [resultData, setResultData] = useState<ChildPrediction | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        if (childId) {
-          const response = await api.getChildPredictions(childId);
-          setResultData(response);
-        } else {
-          setError("Child ID is missing");
+        // Validate childId
+        if (!childId) {
+          throw new Error("Child ID is missing");
         }
+        
+        // Fetch predictions
+        const predictions = await api.getChildPredictions(childId);
+        
+        // Check if predictions exist
+        if (!predictions || predictions.length === 0) {
+          throw new Error("No prediction data found for this child");
+        }
+        
+        // Get the most recent prediction
+        const latestPrediction = predictions[predictions.length - 1];
+        setResultData(latestPrediction);
       } catch (err) {
-        setError(err.message);
+        console.error("Prediction fetch error:", err);
+        setError(err instanceof Error ? err.message : "An unknown error occurred");
       } finally {
         setLoading(false);
       }
@@ -57,8 +68,46 @@ const MalnutritionResults = () => {
     });
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div>Loading prediction data...</div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen p-4 text-center">
+        <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
+        <p className="text-muted-foreground">{error}</p>
+        <Button 
+          onClick={() => navigate(-1)} 
+          className="mt-4"
+        >
+          Go Back
+        </Button>
+      </div>
+    );
+  }
+
+  // No data state
+  if (!resultData) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen p-4 text-center">
+        <h2 className="text-2xl font-bold text-yellow-500 mb-4">No Data Available</h2>
+        <p className="text-muted-foreground">Unable to retrieve child's prediction data.</p>
+        <Button 
+          onClick={() => navigate(-1)} 
+          className="mt-4"
+        >
+          Go Back
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background animate-fadeIn print:bg-white print:pt-0">
@@ -87,32 +136,44 @@ const MalnutritionResults = () => {
                 Malnutrition Analysis
               </h1>
               <p className="text-muted-foreground">
-                Assessment Results for {resultData.childName} • {resultData.age}
+                Assessment Results for {resultData.child_name} • {resultData.age} years
               </p>
             </div>
             <Badge 
               variant="outline" 
               className="font-normal text-muted-foreground print:hidden"
             >
-              Report Date: {new Date(resultData.assessmentDate).toLocaleDateString()}
+              Report Date: {new Date(resultData.timestamp).toLocaleDateString()}
             </Badge>
           </div>
           
           <div className="grid gap-6">
             <MalnutritionResultPanel 
-              classification={resultData.classification as "low" | "moderate" | "high" | "critical"}
-              zScores={resultData.zScores}
+              classification={resultData.predicted_class}
+              zScores={{
+                weightForAge: resultData.weightForAge,
+                heightForAge: resultData.heightForAge,
+                weightForHeight: resultData.weightForHeight
+              }}
               bmi={resultData.bmi}
-              measurements={resultData.measurements}
+              measurements={{
+                weight: resultData.weight,
+                height: resultData.height
+              }}
+              photo_data={resultData.photo_data}
             />
             
             <SeverityVisualization 
-              classification={resultData.classification as "low" | "moderate" | "high" | "critical"}
-              zScores={resultData.zScores}
+              classification={resultData.predicted_class}
+              zScores={{
+                weightForAge: resultData.weightForAge,
+                heightForAge: resultData.heightForAge,
+                weightForHeight: resultData.weightForHeight
+              }}
             />
             
             <RecommendedActions 
-              classification={resultData.classification as "low" | "moderate" | "high" | "critical"}
+              classification={resultData.predicted_class}
             />
             
             <Card className="print:hidden">

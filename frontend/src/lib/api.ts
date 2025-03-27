@@ -40,19 +40,14 @@ export enum Gender {
 
 export enum MalnutritionClassification {
   Normal = "Normal",
-  Moderate = "moderate",
-  High = "high",
-  Critical = "critical",
-}
-
-export enum Status {
-  Normal = "normal",
-  Warning = "warning",
-  Danger = "danger"
+  Moderate = "Moderate",
+  High = "High",
+  Critical = "Critical",
 }
 
 // Interfaces
 export interface MeasurementData {
+  id: number;
   name: string;
   sex: string;
   age: number;
@@ -62,7 +57,7 @@ export interface MeasurementData {
   weight_for_height_z: number;
   weight_for_age_z: number;
   whr: number;
-  photo: File;
+  photo_data: File;
 }
 
 export interface ChildProfileData {
@@ -74,7 +69,7 @@ export interface ChildProfileData {
   height: number;
   lastMeasurement: string;
   status: "normal" | "warning" | "danger";
-  image?: string;
+  photo_data?: string;
   measurements: MeasurementHistory[];
 }
 
@@ -101,7 +96,7 @@ export interface ChildHealthRecord {
   height_m: number;
   bmi: number;
   whr: number;
-  photo_url?: string;
+  photo_data?: string;
   created_at: string;
   predicted_class: MalnutritionClassification;
   confidence: number;
@@ -109,18 +104,20 @@ export interface ChildHealthRecord {
 }
 
 export interface ChildPrediction {
+  id: number;
   child_name: string;
   sex: "male" | "female";
   age: number;
   height: number;
   weight: number;
   date: string;
+  bmi: number;
   weightForAge: number;
   heightForAge: number;
   weightForHeight: number;
   predicted_class: MalnutritionClassification;
   timestamp: string;
-  photo_url?: string;
+  photo_data?: string;
 }
 
 export interface ApiResponse<T> {
@@ -131,6 +128,7 @@ export interface ApiResponse<T> {
 
 // Transform backend data to match frontend needs
 const transformChildData = (record: ChildHealthRecord): ChildPrediction => ({
+  id: record.id,
   child_name: record.name,
   sex: record.sex.toLowerCase() as "male" | "female",
   age: record.age,
@@ -140,9 +138,10 @@ const transformChildData = (record: ChildHealthRecord): ChildPrediction => ({
   weightForAge: record.weight_for_age_z,
   heightForAge: record.height_for_age_z,
   weightForHeight: record.weight_for_height_z,
+  bmi: record.bmi,
   predicted_class: record.predicted_class,
   timestamp: record.created_at,
-  photo_url: record.photo_url
+  photo_data: record.photo_data ? record.photo_data.replace(/^data:image\/\w+;base64,/, '') : undefined
 });
 
 // Helper function to convert string to Gender enum
@@ -153,6 +152,7 @@ export const stringToGender = (value: string): Gender => {
   }
   throw new Error(`Invalid gender value: ${value}`);
 };
+
 // Centralized API request handler
 const fetchApi = async (endpoint: string, options: RequestInit) => {
   try {
@@ -176,15 +176,6 @@ const fetchApi = async (endpoint: string, options: RequestInit) => {
   }
 };
 
-const fetchWithTimeout = (url, options, timeout = 10000) => {
-  return Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("⏳ Request timed out")), timeout)
-    ),
-  ]);
-};
-
 // Add the getAllChildren function
 export const getAllChildren = async (): Promise<ChildHealthRecord[]> => {
   return fetchApi("/children", {
@@ -192,6 +183,16 @@ export const getAllChildren = async (): Promise<ChildHealthRecord[]> => {
     headers: { "Content-Type": "application/json" },
   });
 };
+
+// Add a new function to get child image
+export const getChildImage = async (childId: string): Promise<Blob> => {
+  const response = await fetch(`${API_BASE_URL}/image/${childId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch image');
+  }
+  return await response.blob();
+};
+
 /**
  * API Service for NutriGuard
  */
@@ -207,9 +208,9 @@ export const api = {
     formData.append('weight_for_height_z', data.weight_for_height_z.toString());
     formData.append('weight_for_age_z', data.weight_for_age_z.toString());
     formData.append('whr', data.whr.toString());
-    formData.append('photo', data.photo);
+    formData.append('photo_data', data.photo_data);
 
-    return fetchApi("/children", {
+    return fetchApi("/predict", {
       method: "POST",
       body: formData,
     });
@@ -224,7 +225,7 @@ export const api = {
   },
 
   getChildById: (childId: string) =>
-    fetchApi(`/children/${childId}`, {
+    fetchApi(`/child/${childId}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     }),
@@ -240,7 +241,7 @@ export const api = {
     formData.append('weight_for_height_z', data.weight_for_height_z.toString());
     formData.append('weight_for_age_z', data.weight_for_age_z.toString());
     formData.append('whr', data.whr.toString());
-    formData.append('photo', data.photo);
+    formData.append('photo_data', data.photo_data);
 
     return fetchApi(`/children/${childId}/measurements`, {
       method: "POST",
@@ -259,7 +260,7 @@ export const api = {
     formData.append('weight_for_height_z', data.weight_for_height_z.toString());
     formData.append('weight_for_age_z', data.weight_for_age_z.toString());
     formData.append('whr', data.whr.toString());
-    formData.append('photo', data.photo);
+    formData.append('photo_data', data.photo_data);
 
     return fetchApi("/analyze", {
       method: "POST",
@@ -267,7 +268,7 @@ export const api = {
     });
   },
 
-  getChildPredictionData: async (childId: string): Promise<ChildPrediction[]> => {
+  getChildPredictions: async (childId: string): Promise<ChildPrediction[]> => {
     const response = await fetchApi(`/child/${childId}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
@@ -275,6 +276,25 @@ export const api = {
     console.log("API response: ", response);
     return response.map(transformChildData);
   },
+
+  getChildImage,
+
+  transformChildData: (record: ChildHealthRecord): ChildPrediction => ({
+    id: record.id,
+    child_name: record.name,
+    sex: record.sex.toLowerCase() as "male" | "female",
+    age: record.age,
+    height: record.height,
+    weight: record.weight,
+    date: record.created_at,
+    weightForAge: record.weight_for_age_z,
+    heightForAge: record.height_for_age_z,
+    weightForHeight: record.weight_for_height_z,
+    bmi: record.bmi,
+    predicted_class: record.predicted_class,
+    timestamp: record.created_at,
+    photo_data: record.photo_data ? record.photo_data.replace(/^data:image\/\w+;base64,/, '') : undefined
+  }),
 
 };
 
