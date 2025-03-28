@@ -47,7 +47,12 @@ const ChildCard = ({
           label: "Needs Monitoring",
           className: "bg-warning/10 text-warning border-warning"
         };
-      case MalnutritionClassification.Normal:
+      case MalnutritionClassification.Low:
+        return {
+          color: "text-green-500",
+          bgColor: "bg-green-50",
+          label: "Low Risk",
+        };
       default:
         return {
           icon: <CheckCircle className="h-4 w-4" />,

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -98,6 +97,19 @@ const NutritionGuidance = ({
         "Continue routine health check-ups and immunizations",
         "Maintain good hygiene practices"
       ];
+    }
+  };
+
+  const getStatusText = (status: "normal" | "warning" | "danger") => {
+    switch (status) {
+      case "normal":
+        return "Low Risk";
+      case "warning":
+        return "Moderate Risk";
+      case "danger":
+        return "High Risk";
+      default:
+        return "Unknown Status";
     }
   };
 

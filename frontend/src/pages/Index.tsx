@@ -57,7 +57,7 @@ const Dashboard = () => {
         <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Child Growth Dashboard</h1>
-            <p className="text-muted-foreground mt-1">Monitor and track children's growth metrics</p>
+            <p className="text-muted-foreground mt-1">Predict , Monitor and track children's growth metrics</p>
           </div>
           
           <div className="flex gap-2 w-full md:w-auto">
@@ -122,7 +122,7 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-4">
                 {searchTerm 
                   ? `No results matching "${searchTerm}"`
-                  : "Start by adding a child to monitor their growth"}
+                  : "Start by adding a child for Prediction and monitor their growth"}
               </p>
               <Button asChild>
                 <Link to="/add-measurement">

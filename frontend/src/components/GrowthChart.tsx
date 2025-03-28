@@ -45,7 +45,7 @@ const GrowthChart = ({ data, name }: GrowthChartProps) => {
   };
 
   const getZScoreText = (value: number) => {
-    if (value >= -1 && value <= 1) return "Normal";
+    if (value >= -1 && value <= 1) return "Low Risk";
     if ((value >= -2 && value < -1) || (value > 1 && value <= 2)) return "Moderate Risk";
     if (value < -2) return "Undernutrition";
     return "Overweight";
@@ -146,7 +146,7 @@ const GrowthChart = ({ data, name }: GrowthChartProps) => {
             &lt; -2: Undernutrition
           </div>
           <div className="rounded-md border border-secondary/30 bg-secondary/10 p-2">
-            -2 to +2: Normal Range
+            -2 to +2: Low Risk Range
           </div>
           <div className="rounded-md border border-destructive/30 bg-destructive/10 p-2">
             &gt; +2: Overweight

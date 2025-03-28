@@ -39,7 +39,7 @@ export enum Gender {
 }
 
 export enum MalnutritionClassification {
-  Normal = "Normal",
+  Low = "Low",
   Moderate = "Moderate",
   High = "High",
   Critical = "Critical",

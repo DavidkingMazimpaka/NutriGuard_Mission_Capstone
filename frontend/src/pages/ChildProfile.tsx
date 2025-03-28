@@ -26,15 +26,14 @@ const transformToGrowthChartData = (data: ChildPrediction[]) => {
 
 // Utility function to map prediction class to status
 const mapPredictedClassToStatus = (predictedClass: MalnutritionClassification): "normal" | "warning" | "danger" => {
-  switch(predictedClass) {
-    case MalnutritionClassification.Critical:
-      return "danger";
-    case MalnutritionClassification.High:
-      return "danger";
+  switch (predictedClass) {
+    case MalnutritionClassification.Low:
+      return "normal";
     case MalnutritionClassification.Moderate:
       return "warning";
-    case MalnutritionClassification.Normal:
-      return "normal";
+    case MalnutritionClassification.High:
+    case MalnutritionClassification.Critical:
+      return "danger";
     default:
       return "normal";
   }
@@ -89,19 +88,13 @@ const ChildProfile = () => {
   // Status information generator
   const getStatusInfo = () => {
     switch(predictedClass) {
-      case MalnutritionClassification.Critical:
+      case MalnutritionClassification.Low:
         return {
-          title: "Urgent Action Needed",
-          description: "This child shows significant signs of malnutrition requiring immediate intervention.",
-          icon: <AlertTriangle className="h-6 w-6 text-red-600" />,
-          color: "text-red-600"
-        };
-      case MalnutritionClassification.High:
-        return {
-          title: "Needs Attention",
-          description: "This child shows some concerning growth patterns and needs closer monitoring.",
-          icon: <AlertTriangle className="h-6 w-6 text-orange-600" />,
-          color: "text-orange-600"
+          title: "Low Risk",
+          description: "The child's growth indicators are within normal ranges.",
+          icon: <CheckCircle className="h-6 w-6 text-green-600" />,
+          color: "text-green-600",
+          bgColor: "bg-green-50"
         };
       case MalnutritionClassification.Moderate:
         return {
@@ -110,19 +103,27 @@ const ChildProfile = () => {
           icon: <AlertTriangle className="h-6 w-6 text-yellow-600" />,
           color: "text-yellow-600"
         };
-      case MalnutritionClassification.Normal:
+      case MalnutritionClassification.High:
         return {
-          title: "Normal Growth",
-          description: "This child is growing within the expected range for their age and gender.",
-          icon: <CheckCircle className="h-6 w-6 text-green-600" />,
-          color: "text-green-600"
+          title: "High Risk",
+          description: "This child shows significant signs of malnutrition requiring attention.",
+          icon: <AlertTriangle className="h-6 w-6 text-orange-600" />,
+          color: "text-orange-600"
+        };
+      case MalnutritionClassification.Critical:
+        return {
+          title: "Urgent Action Needed",
+          description: "This child shows significant signs of malnutrition requiring immediate intervention.",
+          icon: <AlertTriangle className="h-6 w-6 text-red-600" />,
+          color: "text-red-600"
         };
       default:
         return {
-          title: "Unknown Status",
-          description: "The status of this child's growth is unknown.",
-          icon: <AlertTriangle className="h-6 w-6 text-gray-600" />,
-          color: "text-gray-600"
+          title: "Low Risk",
+          description: "The child's growth indicators are within normal ranges.",
+          icon: <CheckCircle className="h-6 w-6 text-green-600" />,
+          color: "text-green-600",
+          bgColor: "bg-green-50"
         };
     }
   };

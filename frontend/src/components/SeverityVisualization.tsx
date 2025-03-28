@@ -21,7 +21,7 @@ export const SeverityVisualization = ({
   // Determine severity percentage based on classification
   const getSeverityPercentage = () => {
     switch (classification) {
-      case MalnutritionClassification.Normal:
+      case MalnutritionClassification.Low:
         return 25;
       case MalnutritionClassification.Moderate:
         return 50;
@@ -37,7 +37,7 @@ export const SeverityVisualization = ({
   // Get color based on classification
   const getProgressColor = () => {
     switch (classification) {
-      case MalnutritionClassification.Normal:
+      case MalnutritionClassification.Low:
         return "bg-green-500";
       case MalnutritionClassification.Moderate:
         return "bg-yellow-500";
@@ -134,7 +134,7 @@ export const SeverityVisualization = ({
             <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="flex items-center gap-2 rounded-md border p-3">
                 <div>
-                  {classification === MalnutritionClassification.Normal && <CheckCircle className="h-5 w-5 text-green-500" />}
+                  {classification === MalnutritionClassification.Low && <CheckCircle className="h-5 w-5 text-green-500" />}
                   {classification === MalnutritionClassification.Moderate && <AlertCircle className="h-5 w-5 text-yellow-500" />}
                   {classification === MalnutritionClassification.High && <AlertTriangle className="h-5 w-5 text-orange-500" />}
                   {classification === MalnutritionClassification.Critical && <XCircle className="h-5 w-5 text-red-500" />}
@@ -150,7 +150,7 @@ export const SeverityVisualization = ({
               <div className="flex items-center gap-2 rounded-md border p-3">
                 <div className="text-xs">
                   <p><span className="font-medium">Z-score interpretation:</span></p>
-                  <p>Above -1: Normal growth</p>
+                  <p>Above -1: Low risk</p>
                   <p>-1 to -2: Mild malnutrition</p>
                   <p>-2 to -3: Moderate malnutrition</p>
                   <p>Below -3: Severe malnutrition</p>

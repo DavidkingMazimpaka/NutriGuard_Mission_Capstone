@@ -27,13 +27,12 @@ const MalnutritionResultPanel: React.FC<MalnutritionResultPanelProps> = ({
 }) => {
   const getClassificationDetails = () => {
     switch (classification) {
-      case MalnutritionClassification.Normal:
+      case MalnutritionClassification.Low:
         return {
-          title: "Normal Growth",
-          description: "Child is growing within the expected range for their age and gender.",
-          color: "bg-green-100 border-green-200",
-          textColor: "text-green-700",
-          icon: <CheckCircle className="h-12 w-12 text-green-500" />
+          title: "Low Risk",
+          description: "The child's growth indicators are within normal ranges.",
+          color: "text-green-500",
+          bgColor: "bg-green-50",
         };
       case MalnutritionClassification.Moderate:
         return {
@@ -87,9 +86,6 @@ const MalnutritionResultPanel: React.FC<MalnutritionResultPanelProps> = ({
             <p className="text-sm text-muted-foreground mt-1">
               {details.description}
             </p>
-            {photo_data && (
-              <img src={photo_data} alt="Child" className="w-full h-40 object-cover mt-4 rounded-md" />
-            )}
           </div>
 
           <div className="md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4">

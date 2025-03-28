@@ -1,16 +1,18 @@
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Routes, Route, Navigate } from "react-router-dom";
+import WelcomePage from "./pages/WelcomePage";
 import Index from "./pages/Index";
 import ChildProfile from "./pages/ChildProfile";
 import AddMeasurement from "./pages/AddMeasurement";
 import Resources from "./pages/Resources";
 import NotFound from "./pages/NotFound";
-import WelcomePage from "./pages/WelcomePage";
 import MalnutritionResults from "./pages/MalnutritionResults";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import HealthcarePortal from "./pages/HealthcarePortal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,8 +40,11 @@ const App = () => {
 
         {/* Routes */}
         <Routes>
-          {/* Public route */}
+          {/* Public routes */}
           <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/healthcare-portal" element={<HealthcarePortal />} />
           
           {/* Protected routes */}
           {hasVisited ? (
