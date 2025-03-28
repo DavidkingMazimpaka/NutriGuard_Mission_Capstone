@@ -1,44 +1,46 @@
 # NutriGuard: Early Malnutrition Detection in Children Under 5
 
-## Project Structure
+## Overview
 
-```
-NutriGuard/
-│
-├── backend/
-│   ├── app/
-│   ├── model_files/
-│   ├── tests/
-│   ├── scripts/
-│   ├── requirements.txt
-│   └── main.py
-│
-├── frontend/
-│   ├── react- Typescript/
-│
-│
-├── notebooks/
-│   └── NutriGuard_Capstone.ipynb
-    └── malnutrition_model_training_evaluation.ipynb
-│
-├── dataset/
-│   └── malnutrition_dataset.csv
-│      ├──NutriGuardDataset.xlsx
-└── README.md
-```
+NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in the Western Province of Rwanda. The system leverages:
+- Rwanda Demographic Health Survey (DHS) data from 2021
+- WHO Child Standards growth data
+- Ntaganzwa HealthCare Data
 
-## Description
+## Features
 
-NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in the Western Province of Rwanda. By leveraging Rwanda Demographic Health Survey (DHS) data from the 2021 report, WHO Child Standars growth, and Ntaganzwa HealthCare Data, the system analyzes key health indicators to provide an early warning, prediction, and recommendation system for malnutrition in children under five.
+- Early warning system for malnutrition detection
+- AI-powered prediction system
+- Personalized recommendations
+- Growth monitoring and tracking
+- Healthcare facility recommendations
+- Nutritional guidance
+
+## Tech Stack
+
+### Backend
+- Python 3.8+
+- FastAPI
+- TensorFlow/Keras
+- Pandas
+- NumPy
+
+### Frontend
+- React with TypeScript
+- Tailwind CSS
+- Shadcn UI Components
+- React Router
+- React Query
 
 ## Prerequisites
 
+Before you begin, ensure you have the following installed:
 - Python 3.8 or higher
-- pip (Python package manager)
+- Node.js 16.x or higher
+- npm or yarn
 - Git
-- Virtual environment (venv recommended)
 
-## Installation Steps
+## Installation Guide
 
 ### 1. Clone the Repository
 
@@ -49,132 +51,164 @@ cd NutriGuard_Mission_Capstone
 
 ### 2. Backend Setup
 
-#### 2.1 Create Virtual Environment
+#### 2.1 Create and Activate Virtual Environment
 
 ```bash
-# On macOS/Linux
-python3 -m venv backend/env
+# Create virtual environment
+python -m venv backend/env
 
-# On Windows
-python -m venv backend\env
-```
-
-#### 2.2 Activate Virtual Environment
-
-```bash
-# On macOS/Linux
-source backend/env/bin/activate
-
+# Activate virtual environment
 # On Windows
 backend\env\Scripts\activate
+# On macOS/Linux
+source backend/env/bin/activate
 ```
 
-#### 2.3 Install Backend Dependencies
+#### 2.2 Install Backend Dependencies
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-### 3. Model Training
+#### 2.3 Configure Environment Variables
 
-```bash
-# Run model training script
-python scripts/train_model.py
-```
+Create a `.env` file in the `backend/` directory with the following variables:
 
-### 4. Run Backend Server
-
-```bash
-# Start FastAPI server
-python run.py
-```
-
-- API Docs: <http://localhost:8000/docs>
-- ReDoc: <http://localhost:8000/redoc>
-
-### 5. Frontend Setup (Optional)
-
-#### Web Frontend
-
-```bash
-cd ../frontend/web
-npm install
-npm start
-```
-
-#### Mobile Frontend
-
-```bash
-cd ../frontend/mobile
-flutter pub get
-flutter run
-```
-
-## Running Tests
-
-```bash
-# Backend tests
-cd backend
-pytest tests/
-```
-
-## Environment Configuration
-
-1. Create a `.env` file in the `backend/` directory
-2. Add necessary environment variables:
-
-```
+```env
 MODEL_PATH=model_files/malnutrition_model.h5
 SCALER_PATH=model_files/scaler.joblib
 LOG_LEVEL=INFO
 ```
 
-## Designs
+### 3. Frontend Setup
 
-The project includes the following design components:
+#### 3.1 Install Frontend Dependencies
 
-- Figma Mockups: UI/UX designs for the mobile and web interfaces. [View Mockups](https://www.figma.com/proto/jgtbH2Xs0YMXiesIClfGWi/NutriGuard?node-id=0-1&t=9lzvu1IxIhSQkn9T-1)
+```bash
+cd frontend
+npm install
+```
 
-## Deployment Considerations
+#### 3.2 Configure Environment Variables
 
-- Use Gunicorn for production deployment
-- Configure environment-specific settings
-- Set up HTTPS and proper authentication
+Create a `.env` file in the `frontend/` directory:
 
-## Project Components
+```env
+VITE_API_BASE_URL=http://localhost:8000/api
+```
 
-1. **Machine Learning Model**
-   - Located in: `backend/model_files/`
-   - Training script: `backend/scripts/train_model.py`
-   - Model: TensorFlow/Keras Neural Network
+## Running the Application
 
-2. **Backend API**
-   - Framework: FastAPI
-   - Main application: `backend/app/main.py`
-   - Prediction routes: `backend/app/routes/prediction.py`
+### 1. Start the Backend Server
 
-3. **Frontend**
-   - Web: React,Typescript
-   - Mobile: Flutter (future Implementation)
-  
-4. **Project Progress Demos**
-   - [Functionality Demo](https://drive.google.com/file/d/1j27mbtcyg6wZhVPEq4LK6jY7bewx5QSI/view?usp=sharing)
+```bash
+# Navigate to backend directory
+cd backend
+
+# Start the FastAPI server
+python run.py
+```
+
+The backend server will start at:
+- API Documentation: http://localhost:8000/docs
+- ReDoc Documentation: http://localhost:8000/redoc
+
+### 2. Start the Frontend Development Server
+
+```bash
+# Navigate to frontend directory
+cd frontend
+
+# Start the development server
+npm run dev
+```
+
+The frontend application will be available at:
+- http://localhost:8080
+
+## Testing
+
+### Backend Tests
+
+```bash
+cd backend
+pytest tests/
+```
+
+## Project Structure
+
+```
+NutriGuard/
+├── backend/
+│   ├── app/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   └── services/
+│   ├── model_files/
+│   ├── tests/
+│   ├── scripts/
+│   ├── requirements.txt
+│   └── main.py
+│
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── lib/
+│   │   └── styles/
+│   ├── public/
+│   └── package.json
+│
+├── notebooks/
+│   └── malnutrition_model_training_evaluation.ipynb
+│
+└── README.md
+```
+
+## API Documentation
+
+The API documentation is available at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
 ## Troubleshooting
 
-- Ensure all dependencies are installed
-- Check Python and pip versions
-- Verify model files are present in `backend/model_files/`
+### Common Issues
+
+1. **Backend Connection Issues**
+   - Ensure the backend server is running
+   - Check if the port 8000 is available
+   - Verify environment variables are set correctly
+
+2. **Frontend Build Issues**
+   - Clear npm cache: `npm cache clean --force`
+   - Delete node_modules and reinstall: 
+     ```bash
+     rm -rf node_modules
+     npm install
+     ```
+
+3. **Model Loading Issues**
+   - Verify model files exist in `backend/model_files/`
+   - Check model file permissions
+   - Ensure correct Python version is being used
 
 ## Contributing
 
 1. Fork the repository
-2. Create a new branch
+2. Create a new branch (`git checkout -b feature/improvement`)
 3. Make your changes
-4. Submit a pull request
+4. Commit your changes (`git commit -am 'Add new feature'`)
+5. Push to the branch (`git push origin feature/improvement`)
+6. Create a Pull Request
 
 ## Contact
 
 - **Maintainer:** David Mazimpaka
-- **Email:** <mazimpakadavid607@gmail.com>
+- **Email:** mazimpakadavid607@gmail.com
+- **GitHub:** [DavidkingMazimpaka](https://github.com/DavidkingMazimpaka)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
