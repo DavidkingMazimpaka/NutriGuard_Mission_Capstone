@@ -5,3 +5,10 @@ package.json
 package-lock.json
 tailwind.config.ts
 .vercel
+.png
+.jpg
+.jpeg
+.gif
+.svg
+.webp
+.ico
