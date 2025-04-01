@@ -18,10 +18,13 @@ app = FastAPI(
 # Define the frontend build directory globally
 frontend_build_dir = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 
+# Get environment variable for allowed origins
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080,http://localhost:3000,http://192.168.1.71:8080").split(",")
+
 # Add CORS middleware with more specific configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://localhost:3000", "http://192.168.1.71:8080"],  # Add your frontend URLs
+    allow_origins=ALLOWED_ORIGINS,  # List of allowed origins
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods
     allow_headers=["*"],  # Allows all headers
