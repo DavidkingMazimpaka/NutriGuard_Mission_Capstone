@@ -1,44 +1,52 @@
-# NutriGuard: Early Malnutrition Detection in Children Under 5
+# NutriGuard: Early Malnutrition Detection in Children Under 5 in Western Province of Rwanda.
 
 ## Overview
 
-NutriGuard is an AI-powered system designed for the early detection of malnutrition in children under the age of five in the Western Province of Rwanda. The system leverages:
-- Rwanda Demographic Health Survey (DHS) data from 2021
-- WHO Child Standards growth data
-- Ntaganzwa HealthCare Data
+**NutriGuard** is an AI-powered system designed for the early detection of malnutrition in children under the age of five, with a focus on communities in Rwanda's Western Province. The system leverages:
+- Rwanda Demographic Health Survey (DHS) data from 2021  
+- WHO Child Standards growth data  
+- Ntaganzwa HealthCare data
+
+NutriGuard offers health professionals a simple tool to assess malnutrition risk based on anthropometric data and generate personalized nutritional guidance.
+
+---
 
 ## Features
 
-- Early warning system for malnutrition detection
-- AI-powered prediction system
-- Personalized recommendations
-- Growth monitoring and tracking
-- Healthcare facility recommendations
-- Nutritional guidance
+- 🚨 Early warning system for malnutrition detection  
+- 🤖 AI-powered prediction and classification (e.g. normal, moderate, severe)  
+- 📊 Growth monitoring and tracking  
+- 💡 Personalized health and nutrition recommendations  
+- 🏥 Nearby healthcare facility suggestions  
+- 📚 Educational guidance on nutrition and immunity
+
+---
 
 ## Tech Stack
 
-### Backend
+### 🔧 Backend
 - Python 3.8+
 - FastAPI
 - TensorFlow/Keras
-- Pandas
-- NumPy
+- Pandas, NumPy
 
-### Frontend
+### 💻 Frontend
 - React with TypeScript
 - Tailwind CSS
 - Shadcn UI Components
-- React Router
-- React Query
+- React Router, React Query
+
+---
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
-- Python 3.8 or higher
+Make sure the following are installed:
+- Python 3.8+
 - Node.js 16.x or higher
 - npm or yarn
 - Git
+
+---
 
 ## Installation Guide
 
@@ -49,31 +57,32 @@ git clone https://github.com/DavidkingMazimpaka/NutriGuard_Mission_Capstone.git
 cd NutriGuard_Mission_Capstone
 ```
 
+---
+
 ### 2. Backend Setup
 
-#### 2.1 Create and Activate Virtual Environment
+#### 2.1 Create and Activate a Virtual Environment
 
 ```bash
-# Create virtual environment
 python -m venv backend/env
 
-# Activate virtual environment
-# On Windows
+# Activate:
+# Windows
 backend\env\Scripts\activate
-# On macOS/Linux
+# macOS/Linux
 source backend/env/bin/activate
 ```
 
-#### 2.2 Install Backend Dependencies
+#### 2.2 Install Dependencies
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-#### 2.3 Configure Environment Variables
+#### 2.3 Environment Variables
 
-Create a `.env` file in the `backend/` directory with the following variables:
+Create a `.env` file in `backend/`:
 
 ```env
 MODEL_PATH=model_files/malnutrition_model.h5
@@ -81,60 +90,57 @@ SCALER_PATH=model_files/scaler.joblib
 LOG_LEVEL=INFO
 ```
 
-### 3. Frontend Setup
+---
 
-#### 3.1 Install Frontend Dependencies
+### 3. Frontend Setup
 
 ```bash
 cd frontend
 npm install
 ```
 
-#### 3.2 Configure Environment Variables
+#### 3.1 Frontend Environment Variables
 
-Create a `.env` file in the `frontend/` directory:
+Create a `.env` file in `frontend/`:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api
 ```
 
+---
+
 ## Running the Application
 
-### 1. Start the Backend Server
+### 1. Start the Backend
 
 ```bash
-# Navigate to backend directory
 cd backend
-
-# Start the FastAPI server
 python run.py
 ```
 
-The backend server will start at:
-- API Documentation: http://localhost:8000/docs
-- ReDoc Documentation: http://localhost:8000/redoc
+API docs will be available at:
+- http://localhost:8000/docs  
+- http://localhost:8000/redoc
 
-### 2. Start the Frontend Development Server
+### 2. Start the Frontend
 
 ```bash
-# Navigate to frontend directory
 cd frontend
-
-# Start the development server
 npm run dev
 ```
 
-The frontend application will be available at:
-- http://localhost:8080
+App runs at: http://localhost:8080
+
+---
 
 ## Testing
-
-### Backend Tests
 
 ```bash
 cd backend
 pytest tests/
 ```
+
+---
 
 ## Project Structure
 
@@ -142,73 +148,80 @@ pytest tests/
 NutriGuard/
 ├── backend/
 │   ├── app/
-│   │   ├── routes/
-│   │   ├── models/
-│   │   └── services/
 │   ├── model_files/
 │   ├── tests/
-│   ├── scripts/
 │   ├── requirements.txt
-│   └── main.py
-│
+│   └── run.py
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── lib/
-│   │   └── styles/
 │   ├── public/
 │   └── package.json
-│
 ├── notebooks/
-│   └── malnutrition_model_training_evaluation.ipynb
-│
 └── README.md
 ```
 
+---
+
 ## API Documentation
 
-The API documentation is available at:
-- Swagger UI: http://localhost:8000/docs
+- Swagger: http://localhost:8000/docs  
 - ReDoc: http://localhost:8000/redoc
+
+---
 
 ## Troubleshooting
 
-### Common Issues
+### Backend
+- Ensure virtual environment is active
+- Confirm model files exist in `backend/model_files/`
 
-1. **Backend Connection Issues**
-   - Ensure the backend server is running
-   - Check if the port 8000 is available
-   - Verify environment variables are set correctly
+### Frontend
+- Use the correct Node version (16.x)
+- If needed:  
+  ```bash
+  rm -rf node_modules
+  npm install
+  ```
 
-2. **Frontend Build Issues**
-   - Clear npm cache: `npm cache clean --force`
-   - Delete node_modules and reinstall: 
-     ```bash
-     rm -rf node_modules
-     npm install
-     ```
+---
 
-3. **Model Loading Issues**
-   - Verify model files exist in `backend/model_files/`
-   - Check model file permissions
-   - Ensure correct Python version is being used
+## Feedback & Future Improvements
+
+Following the defense presentation, panelists did not recommend mandatory changes. However, based on a self-reflection prompted by one panelist, the following improvements have been identified:
+
+- **🖼️ Image Classification Integration (Planned Feature)**  
+  Future versions of NutriGuard will explore using computer vision to detect visible signs of malnutrition from a child's image. This would be particularly useful in rural or low-data settings.
+
+- **📱 Mobile App Optimization**  
+  Develop a lightweight mobile app version to support offline or poor-network areas.
+
+- **📊 More Feature Engineering**  
+  Incorporate additional anthropometric and clinical features for more robust predictions.
+
+- **🌍 Regional Dataset Expansion**  
+  Extend training data to other regions of Rwanda for broader applicability.
+
+---
 
 ## Contributing
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/improvement`)
-3. Make your changes
-4. Commit your changes (`git commit -am 'Add new feature'`)
-5. Push to the branch (`git push origin feature/improvement`)
-6. Create a Pull Request
+1. Fork the repository  
+2. Create a new branch (`git checkout -b feature/improvement`)  
+3. Make your changes  
+4. Commit (`git commit -am 'Add new feature'`)  
+5. Push (`git push origin feature/improvement`)  
+6. Create a Pull Request  
+
+---
 
 ## Contact
 
-- **Maintainer:** David Mazimpaka
-- **Email:** mazimpakadavid607@gmail.com
-- **GitHub:** [DavidkingMazimpaka](https://github.com/DavidkingMazimpaka)
+**Maintainer:** David Mazimpaka  
+📧 mazimpakadavid607@gmail.com  
+🌐 [GitHub](https://github.com/DavidkingMazimpaka)
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License – see `LICENSE` file.
