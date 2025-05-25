@@ -19,7 +19,7 @@ app = FastAPI(
 frontend_build_dir = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 
 # Get environment variable for allowed origins
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080,http://localhost:3000,http://192.168.1.71:8080").split(",")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:8080").split(",")
 
 # Add CORS middleware with more specific configuration
 app.add_middleware(

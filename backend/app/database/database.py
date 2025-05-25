@@ -1,23 +1,41 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
-from urllib.parse import quote_plus
+from dotenv import load_dotenv
+import logging
 
-# Define your database connection parameters
-DB_USER = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "lolo@123")  # Password with special character
-DB_PASSWORD_ENCODED = quote_plus(DB_PASSWORD)  # URL-encode the password
-DB_HOST = os.getenv("DB_HOST", "localhost")
-DB_PORT = os.getenv("DB_PORT", "5432")
-DB_NAME = os.getenv("DB_NAME", "NutriGuard")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Create the database URL with the encoded password
-DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD_ENCODED}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+# Load environment variables from .env file
+load_dotenv()
 
-# Create engine and session
-engine = create_engine(DATABASE_URL)
+# Get the database URL from environment variables
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    logger.error("DATABASE_URL environment variable is not set!")
+    raise ValueError("DATABASE_URL environment variable is not set!")
+
+# Initialize SQLAlchemy components
+try:
+    engine = create_engine(DATABASE_URL, echo=False, pool_pre_ping=True)
+    # Test the connection
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+    logger.info("Successfully connected to the database.")
+except Exception as e:
+    logger.error(f"Failed to connect to the database: {str(e)}")
+    raise
+
+# Create a session factory
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base class for all models
 Base = declarative_base()
 
-from app.models.child_health_record import ChildHealthRecord 
+# Import models so that they are registered with SQLAlchemy metadata
+# Ensure the import path is correct relative to where database.py is used
+from app.models.child_health_record import ChildHealthRecord
